@@ -1,6 +1,6 @@
 {
   "name": "gulp-changed",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Only pass through changed files",
   "license": "MIT",
   "repository": "sindresorhus/gulp-changed",
