@@ -34,10 +34,9 @@ gulp.task('default', function () {
 });
 ```
 
-
 ## API
 
-### changed(dest)
+### changed(dest, options)
 
 #### dest
 
@@ -47,6 +46,20 @@ The destination directory. Same as you put into `gulp.dest()`.
 
 This is needed to be able to compare the current files with the destination files.
 
+#### options
+
+Type: `object`
+
+Change file extension of destination directory, please set ``extname`` value.
+
+```
+gulp.task('jade', function() {
+	gulp.src('./src/**/*.jade')
+		.pipe(changed('./app/', {extname: 'html'})
+		.pipe(jade())
+		.pipe(gulp.dest('./app/'))
+});
+```
 
 ## License
 
