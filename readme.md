@@ -48,14 +48,14 @@ This is needed to be able to compare the current files with the destination file
 
 #### options
 
-Type: `object`
+Type: `Object`
 
-Change file extension of destination directory, please set ``extname`` value.
+Set ``options.extensions`` value to specify extension of the destination files.
 
 ```
 gulp.task('jade', function() {
 	gulp.src('./src/**/*.jade')
-		.pipe(changed('./app/', {extname: 'html'})
+		.pipe(changed('./app/', { extension: '.html' })
 		.pipe(jade())
 		.pipe(gulp.dest('./app/'))
 });
