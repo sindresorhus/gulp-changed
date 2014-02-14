@@ -50,7 +50,7 @@ This is needed to be able to compare the current files with the destination file
 
 Type: `Object`
 
-Set ``options.extensions`` value to specify extension of the destination files.
+Set ``options.extension`` value to specify extension of the destination files.
 
 ```
 gulp.task('jade', function() {
