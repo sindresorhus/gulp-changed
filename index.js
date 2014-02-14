@@ -5,7 +5,10 @@ var gutil = require('gulp-util');
 var through = require('through2');
 
 module.exports = function (dest, opts) {
-	var files = [], opts = opts || {}, newPath;
+	var files = [];
+	var newPath;
+
+	opts = opts || {};
 
 	if (!dest) {
 		throw new gutil.PluginError('gulp-changed', '`dest` required');
@@ -23,8 +26,9 @@ module.exports = function (dest, opts) {
 		}
 
 		newPath = path.join(dest, file.relative);
-		if (opts.extname) {
-			newPath = gutil.replaceExtension(newPath, '.' + opts.extname);
+
+		if (opts.extension) {
+			newPath = gutil.replaceExtension(newPath, opts.extension);
 		}
 
 		fs.stat(newPath, function (err, stats) {
