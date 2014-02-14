@@ -9,6 +9,16 @@
     "email": "sindresorhus@gmail.com",
     "url": "http://sindresorhus.com"
   },
+  "contributors": [
+    {
+      "name": "Alex Gorbatchev",
+      "url": "https://github.com/alexgorbatchev"
+    },
+    {
+      "name": "Bo-Yi Wu",
+      "url": "https://github.com/appleboy"
+    }
+  ],
   "engines": {
     "node": ">=0.10.0"
   },
