@@ -6,7 +6,6 @@ var through = require('through2');
 
 module.exports = function (dest, opts) {
 	var files = [];
-	var newPath;
 
 	opts = opts || {};
 
@@ -25,7 +24,7 @@ module.exports = function (dest, opts) {
 			return cb();
 		}
 
-		newPath = path.join(dest, file.relative);
+		var newPath = path.join(dest, file.relative);
 
 		if (opts.extension) {
 			newPath = gutil.replaceExtension(newPath, opts.extension);

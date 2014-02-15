@@ -62,4 +62,4 @@ function test(opts) {
 }
 
 test();
-test({extension: '.coffee'});
+test({ extension: '.coffee' });
