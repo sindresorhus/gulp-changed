@@ -55,7 +55,7 @@ Set `options.extension` value to specify extension of the destination files.
 ```
 gulp.task('jade', function() {
 	gulp.src('./src/**/*.jade')
-		.pipe(changed('./app/', { extension: '.html' })
+		.pipe(changed('./app/', { extension: '.html' }))
 		.pipe(jade())
 		.pipe(gulp.dest('./app/'))
 });
