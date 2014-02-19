@@ -17,11 +17,6 @@ module.exports = function (dest, opts) {
 			return cb();
 		}
 
-		if (file.isStream()) {
-			this.emit('error', new gutil.PluginError('gulp-changed', 'Streaming not supported'));
-			return cb();
-		}
-
 		var newPath = path.join(dest, file.relative);
 
 		if (opts.extension) {
