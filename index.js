@@ -5,8 +5,6 @@ var gutil = require('gulp-util');
 var through = require('through2');
 
 module.exports = function (dest, opts) {
-	var files = [];
-
 	opts = opts || {};
 
 	if (!dest) {
