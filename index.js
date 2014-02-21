@@ -5,8 +5,6 @@ var gutil = require('gulp-util');
 var through = require('through2');
 
 module.exports = function (dest, opts) {
-	var files = [];
-
 	opts = opts || {};
 
 	if (!dest) {
@@ -16,11 +14,6 @@ module.exports = function (dest, opts) {
 	return through.obj(function (file, enc, cb) {
 		if (file.isNull()) {
 			this.push(file);
-			return cb();
-		}
-
-		if (file.isStream()) {
-			this.emit('error', new gutil.PluginError('gulp-changed', 'Streaming not supported'));
 			return cb();
 		}
 
