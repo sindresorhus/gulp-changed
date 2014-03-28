@@ -1,4 +1,4 @@
-# [gulp](http://gulpjs.com)-changed [![Build Status](https://secure.travis-ci.org/sindresorhus/gulp-changed.png?branch=master)](http://travis-ci.org/sindresorhus/gulp-changed)
+# [gulp](http://gulpjs.com)-changed [![Build Status](https://travis-ci.org/sindresorhus/gulp-changed.svg?branch=master)](https://travis-ci.org/sindresorhus/gulp-changed)
 
 > Only pass through changed files
 
@@ -7,14 +7,12 @@ No more wasting precious time on processing unchanged files.
 
 ## Install
 
-Install with [npm](https://npmjs.org/package/gulp-changed)
-
-```
-npm install --save-dev gulp-changed
+```bash
+$ npm install --save-dev gulp-changed
 ```
 
 
-## Example
+## Usage
 
 ```js
 var gulp = require('gulp');
@@ -36,9 +34,9 @@ gulp.task('default', function () {
 
 ## API
 
-### changed(dest, options)
+### changed(destination, options)
 
-#### dest
+#### destination
 
 Type: `String`
 
@@ -48,12 +46,23 @@ This is needed to be able to compare the current files with the destination file
 
 #### options
 
-Type: `Object`
+##### cwd
 
-Set `options.extension` value to specify extension of the destination files.
+Type: `string`  
+Default: `process.cwd()`
+
+The working directory the folder is relative to.
+
+##### extension
+
+Type: `string`
+
+Extension of the destination files.
+
+Useful if it differs from the original, like in the example below:
 
 ```
-gulp.task('jade', function() {
+gulp.task('jade', function () {
 	gulp.src('./src/**/*.jade')
 		.pipe(changed('./app/', { extension: '.html' }))
 		.pipe(jade())
@@ -63,4 +72,4 @@ gulp.task('jade', function() {
 
 ## License
 
-MIT © [Sindre Sorhus](http://sindresorhus.com)
+[MIT](http://opensource.org/licenses/MIT) © [Sindre Sorhus](http://sindresorhus.com)
