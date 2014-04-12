@@ -23,7 +23,7 @@ var SRC = 'src/*.js';
 var DEST = 'dist';
 
 gulp.task('default', function () {
-	gulp.src(SRC)
+	return gulp.src(SRC)
 		.pipe(changed(DEST))
 		// ngmin will only get the files that
 		// changed since the last time it was run
