@@ -7,7 +7,7 @@ var gutil = require('gulp-util');
 var crypto = require('crypto');
 var through = require('through2');
 
-// Propagate "fs.*" operation errors to
+// Propagate 'fs.*' operation errors to
 // the specified stream unless the error
 // was caused by a missing file.
 function fsOperationFailed(stream, sourceFile, err) {
@@ -43,8 +43,8 @@ function createHashDigestComparer(hashAlgorithm) {
 	return function compareHashDigest(stream, cb, sourceFile, targetPath) {
 		fs.readFile(targetPath, function (err, targetData) {
 			if (!fsOperationFailed(stream, sourceFile, err)) {
-				var sourceDigest = crypto.createHash(hashAlgorithm).update(sourceFile.contents).digest("hex");
-				var targetDigest = crypto.createHash(hashAlgorithm).update(targetData).digest("hex");
+				var sourceDigest = crypto.createHash(hashAlgorithm).update(sourceFile.contents).digest('hex');
+				var targetDigest = crypto.createHash(hashAlgorithm).update(targetData).digest('hex');
 				if (sourceDigest !== targetDigest) {
 					stream.push(sourceFile);
 				}
@@ -55,7 +55,7 @@ function createHashDigestComparer(hashAlgorithm) {
 	};
 }
 
-// Create "gulp-changed" transform stream.
+// Create 'gulp-changed' transform stream.
 module.exports = function (dest, opts) {
 	opts = opts || {};
 	opts.cwd = opts.cwd || process.cwd();
@@ -83,5 +83,5 @@ module.exports = function (dest, opts) {
 
 // Export built-in comparers
 module.exports.compareLastModifiedTime = compareLastModifiedTime;
-module.exports.compareMd5Digest = createHashDigestComparer("md5");
-module.exports.compareSha1Digest = createHashDigestComparer("sha1");
+module.exports.compareMd5Digest = createHashDigestComparer('md5');
+module.exports.compareSha1Digest = createHashDigestComparer('sha1');

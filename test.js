@@ -68,16 +68,16 @@ function test(dest, opts) {
 
 // Simple helper function that converts specified
 // gulp stream into an array (invoking specified
-// callback "cb" after stream closes).
+// callback 'cb' after stream closes).
 function streamToArray(s, cb) {
 	var a = [];
-	s.on("data", function (data) {
+	s.on('data', function (data) {
 		a.push(data);
 	});
-	s.on("end", function () {
+	s.on('end', function () {
 		cb(a);
 	});
-	s.on("error", function (err) {
+	s.on('error', function (err) {
 		cb(err);
 	});
 }
@@ -85,36 +85,36 @@ function streamToArray(s, cb) {
 // Define tests that will be run against
 // all built-in hash algorithms.
 function testHash(hashAlgorithm) {
-	describe("gulp-changed with " + hashAlgorithm, function () {
+	describe('gulp-changed with ' + hashAlgorithm, function () {
 
-		it("should not pass any files through in identical directories", function (cb) {
+		it('should not pass any files through in identical directories', function (cb) {
 			var s = gulp
-				.src("./testdata/identical/src/*")
-				.pipe(changed("./testdata/identical/trg", { updateNeeded: changed[hashAlgorithm] }));
+				.src('./testdata/identical/src/*')
+				.pipe(changed('./testdata/identical/trg', { updateNeeded: changed[hashAlgorithm] }));
 			streamToArray(s, function (a) {
 				assert.equal(0, a.length);
 				cb();
 			});
 		});
 
-		it("should only pass through changed files using file extension", function (cb) {
+		it('should only pass through changed files using file extension', function (cb) {
 			var s = gulp
-				.src("./testdata/different/src/*")
-				.pipe(changed("./testdata/different/trg", { updateNeeded: changed[hashAlgorithm] }));
+				.src('./testdata/different/src/*')
+				.pipe(changed('./testdata/different/trg', { updateNeeded: changed[hashAlgorithm] }));
 			streamToArray(s, function (a) {
 				assert.equal(1, a.length);
-				assert.equal("b", path.basename(a[0].path));
+				assert.equal('b', path.basename(a[0].path));
 				cb();
 			});
 		});
 
-		it("should only pass through changed files using extension .coffee", function (cb) {
+		it('should only pass through changed files using extension .coffee', function (cb) {
 			var s = gulp
-				.src("./testdata/different.ext/src/*")
-				.pipe(changed("./testdata/different.ext/trg", { updateNeeded: changed[hashAlgorithm], extension: '.coffee' }));
+				.src('./testdata/different.ext/src/*')
+				.pipe(changed('./testdata/different.ext/trg', { updateNeeded: changed[hashAlgorithm], extension: '.coffee' }));
 			streamToArray(s, function (a) {
 				assert.equal(1, a.length);
-				assert.equal("b.typescript", path.basename(a[0].path));
+				assert.equal('b.typescript', path.basename(a[0].path));
 				cb();
 			});
 		});
@@ -122,10 +122,10 @@ function testHash(hashAlgorithm) {
 	});
 }
 
-describe("gulp-changed with compareLastModifiedTime", function () {
+describe('gulp-changed with compareLastModifiedTime', function () {
 	test();
 	test({ extension: '.coffee' });
 });
 
-testHash("compareMd5Digest");
-testHash("compareSha1Digest");
+testHash('compareMd5Digest');
+testHash('compareSha1Digest');
