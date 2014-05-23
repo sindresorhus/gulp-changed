@@ -96,7 +96,7 @@ If defining a custom function, it will receive the following parameters from `gu
 
 Example:
 
-```
+```js
 gulp.task('jade', function () {
 	gulp.src('./src/**/*.jade')
 		.pipe(changed('./app/', { updateNeeded: changed.compareSha1Digest }))
