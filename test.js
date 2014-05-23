@@ -1,4 +1,5 @@
-/*jslint node: true, white: true, vars: true */
+/*jslint node: true, white: true, vars: true, nomen: true */
+/*global describe: false, it: false */
 
 'use strict';
 var fs = require('fs');
@@ -29,7 +30,7 @@ function test(dest, opts) {
 		try {
 			fs.mkdirSync(dest);
 			fs.writeFileSync(path.join(dest, 'foo' + extension), '');
-		} catch (err) {}
+		} catch (ignore) {}
 
 		stream.on('data', function (file) {
 			files.push(file);
@@ -123,9 +124,21 @@ function testHash(hashAlgorithm) {
 }
 
 describe('gulp-changed with compareLastModifiedTime', function () {
-	test();
-	test({ extension: '.coffee' });
+
+	describe('using relative dest', function () {
+		test('tmp');
+		test('tmp', { extension: '.coffee' });
+	});
+
+	describe('using absolute dest', function () {
+		var absTmp = path.resolve(__dirname, 'tmp');
+
+		test(absTmp);
+		test(absTmp, { extension: '.coffee' });
+	});
+
 });
+
 
 testHash('compareMd5Digest');
 testHash('compareSha1Digest');
