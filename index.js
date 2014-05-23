@@ -36,23 +36,26 @@ function compareLastModifiedTime(stream, cb, sourceFile, targetPath) {
 	});
 }
 
-// Only queue sourceFile in the specified
-// stream if target has different SHA1 digest
-// than source (ignores timestamps).
-function compareSha1Digest(stream, cb, sourceFile, targetPath) {
-	fs.readFile(targetPath, function (err, targetData) {
-		if (!fsOperationFailed(err, stream)) {
-			var sourceDigest = crypto.createHash("sha1").update(sourceFile.file).digest("hex");
-			var targetDigest = crypto.createHash("sha1").update(targetData).digest("hex");
-			if (sourceDigest !== targetDigest) {
-				stream.push(sourceFile);
+// Create a function that will only queue sourceFile
+// in the specified stream if target has different
+// hash digest than source (ignores timestamps).
+function createHashDigestComparer(hashAlgorithm) {
+	return function compareHashDigest(stream, cb, sourceFile, targetPath) {
+		fs.readFile(targetPath, function (err, targetData) {
+			if (!fsOperationFailed(err, stream)) {
+				var sourceDigest = crypto.createHash(hashAlgorithm).update(sourceFile.file).digest("hex");
+				var targetDigest = crypto.createHash(hashAlgorithm).update(targetData).digest("hex");
+				if (sourceDigest !== targetDigest) {
+					stream.push(sourceFile);
+				}
 			}
-		}
 
-		cb();
-	});
+			cb();
+		});
+	};
 }
 
+// Create "gulp-changed" transform stream.
 module.exports = function (dest, opts) {
 	opts = opts || {};
 	opts.cwd = opts.cwd || process.cwd();
@@ -79,4 +82,5 @@ module.exports = function (dest, opts) {
 };
 
 module.exports.compareLastModifiedTime = compareLastModifiedTime;
-module.exports.compareSha1Digest = compareSha1Digest;
+module.exports.compareMd5Digest = createHashDigestComparer("md5");
+module.exports.compareSha1Digest = createHashDigestComparer("sha1");

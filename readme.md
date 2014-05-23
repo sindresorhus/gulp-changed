@@ -56,6 +56,7 @@ The working directory the folder is relative to.
 ##### extension
 
 Type: `string`
+Default: do not change extension
 
 Extension of the destination files.
 
@@ -73,10 +74,11 @@ gulp.task('jade', function () {
 ##### updateNeeded
 
 Type: `function`
+Default: `changed.compareLastModifiedTime`
 
 Function that determines whether update of the specified target file with the specified source file is needed.
 
-Built-in comparers are `changed.compareLastModifiedTime` (default) and `changed.compareSha1Digest`.
+Built-in comparers are `changed.compareLastModifiedTime`, `changed.compareMd5Digest` and `changed.compareSha1Digest`.
 
 Example:
 
