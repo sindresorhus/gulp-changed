@@ -42,8 +42,8 @@ function compareLastModifiedTime(stream, cb, sourceFile, targetPath) {
 function createHashDigestComparer(hashAlgorithm) {
 	return function compareHashDigest(stream, cb, sourceFile, targetPath) {
 		fs.readFile(targetPath, function (err, targetData) {
-			if (!fsOperationFailed(err, stream)) {
-				var sourceDigest = crypto.createHash(hashAlgorithm).update(sourceFile.file).digest("hex");
+			if (!fsOperationFailed(stream, sourceFile, err)) {
+				var sourceDigest = crypto.createHash(hashAlgorithm).update(sourceFile.contents).digest("hex");
 				var targetDigest = crypto.createHash(hashAlgorithm).update(targetData).digest("hex");
 				if (sourceDigest !== targetDigest) {
 					stream.push(sourceFile);
@@ -81,6 +81,7 @@ module.exports = function (dest, opts) {
 	});
 };
 
+// Export built-in comparers
 module.exports.compareLastModifiedTime = compareLastModifiedTime;
 module.exports.compareMd5Digest = createHashDigestComparer("md5");
 module.exports.compareSha1Digest = createHashDigestComparer("sha1");
