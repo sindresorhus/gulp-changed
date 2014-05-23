@@ -18,7 +18,10 @@ module.exports = function (dest, opts) {
 			return cb();
 		}
 
-		var newPath = path.join(opts.cwd, dest, file.relative);
+		if (!dest.match(/^\//)) {
+			dest = path.join(opts.cwd, dest);
+		}
+		var newPath = path.join(dest, file.relative);
 
 		if (opts.extension) {
 			newPath = gutil.replaceExtension(newPath, opts.extension);
