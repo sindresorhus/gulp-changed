@@ -97,13 +97,24 @@ function testHash(hashAlgorithm) {
 			});
 		});
 
-		it("should only pass through files whose content differs", function (cb) {
+		it("should only pass through changed files using file extension", function (cb) {
 			var s = gulp
 				.src("./testdata/different/src/*")
 				.pipe(changed("./testdata/different/trg", { updateNeeded: changed[hashAlgorithm] }));
 			streamToArray(s, function (a) {
 				assert.equal(1, a.length);
 				assert.equal("b", path.basename(a[0].path));
+				cb();
+			});
+		});
+
+		it("should only pass through changed files using extension .coffee", function (cb) {
+			var s = gulp
+				.src("./testdata/different.ext/src/*")
+				.pipe(changed("./testdata/different.ext/trg", { updateNeeded: changed[hashAlgorithm], extension: '.coffee' }));
+			streamToArray(s, function (a) {
+				assert.equal(1, a.length);
+				assert.equal("b.typescript", path.basename(a[0].path));
 				cb();
 			});
 		});
