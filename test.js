@@ -6,35 +6,37 @@ var gutil = require('gulp-util');
 var rimraf = require('rimraf');
 var changed = require('./index');
 
-function test(opts) {
+function test(dest, opts) {
 	var desc = 'should only pass through changed files';
 	var extension = '.js';
 
 	if (opts && opts.extension) {
 		desc += ' using extension ' + opts.extension;
 		extension = opts.extension;
+	} else if (/^\//.test(dest)) {
+		desc += ' with a absolute path';
 	} else {
 		desc += ' using file extension';
 	}
 
 	it(desc, function (cb) {
-		var stream = changed('tmp', opts);
+		var stream = changed(dest, opts);
 		var files = [];
 
 		try {
-			fs.mkdirSync('tmp');
-			fs.writeFileSync(path.join('tmp', 'foo' + extension), '');
+			fs.mkdirSync(dest);
+			fs.writeFileSync(path.join(dest, 'foo' + extension), '');
 		} catch (err) {}
 
 		stream.on('data', function (file) {
 			files.push(file);
-			fs.writeFileSync(path.join('tmp', file.relative), file);
+			fs.writeFileSync(path.join(dest, file.relative), file);
 		});
 
 		stream.on('end', function () {
 			assert.equal(files.length, 1);
 			assert.equal(files[0].relative, 'bar.js');
-			rimraf.sync('tmp');
+			rimraf.sync(dest);
 			cb();
 		});
 
@@ -44,7 +46,7 @@ function test(opts) {
 			path: 'foo.js',
 			contents: new Buffer(''),
 			stat: {
-				mtime: fs.statSync(path.join('tmp', 'foo' + extension))
+				mtime: fs.statSync(path.join(dest, 'foo' + extension))
 			}
 		}));
 
@@ -61,5 +63,6 @@ function test(opts) {
 	});
 }
 
-test();
-test({ extension: '.coffee' });
+test('tmp');
+test(__dirname + '/tmp');
+test('tmp', { extension: '.coffee' });
