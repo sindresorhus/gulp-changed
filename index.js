@@ -6,7 +6,7 @@ var path = require('path');
 var gutil = require('gulp-util');
 var through = require('through2');
 
-function testLastModifiedTime(stream, cb, sourceFile, targetPath) {
+function compareLastModifiedTime(stream, cb, sourceFile, targetPath) {
 	fs.stat(targetPath, function (err, targetStat) {
 		if (err) {
 			// pass through if it doesn't exist
@@ -31,6 +31,7 @@ function testLastModifiedTime(stream, cb, sourceFile, targetPath) {
 module.exports = function (dest, opts) {
 	opts = opts || {};
 	opts.cwd = opts.cwd || process.cwd();
+	opts.updateNeeded = opts.updateNeeded || compareLastModifiedTime;
 
 	if (!dest) {
 		throw new gutil.PluginError('gulp-changed', '`dest` required');
@@ -48,6 +49,8 @@ module.exports = function (dest, opts) {
 			newPath = gutil.replaceExtension(newPath, opts.extension);
 		}
 
-		testLastModifiedTime(this, cb, file, newPath);
+		opts.updateNeeded(this, cb, file, newPath);
 	});
 };
+
+module.exports.compareLastModifiedTime = compareLastModifiedTime;

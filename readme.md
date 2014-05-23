@@ -48,7 +48,7 @@ This is needed to be able to compare the current files with the destination file
 
 ##### cwd
 
-Type: `string`  
+Type: `string`
 Default: `process.cwd()`
 
 The working directory the folder is relative to.
@@ -67,6 +67,25 @@ gulp.task('jade', function () {
 		.pipe(changed('app', {extension: '.html'}))
 		.pipe(jade())
 		.pipe(gulp.dest('app'))
+});
+```
+
+##### updateNeeded
+
+Type: `function`
+
+Function that determines whether update of the specified target file with the specified source file is needed.
+
+Built-in comparers are `changed.compareLastModifiedTime` (default) and `changed.compareSha1Digest`.
+
+Example:
+
+```
+gulp.task('jade', function () {
+	gulp.src('./src/**/*.jade')
+		.pipe(changed('./app/', { updateNeeded: changed.compareSha1Digest }))
+		.pipe(jade())
+		.pipe(gulp.dest('./app/'))
 });
 ```
 
