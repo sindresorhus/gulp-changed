@@ -1,8 +1,32 @@
+/*jslint node: true, white: true */
+
 'use strict';
 var fs = require('fs');
 var path = require('path');
 var gutil = require('gulp-util');
 var through = require('through2');
+
+function testLastModifiedTime(stream, cb, sourceFile, targetPath) {
+	fs.stat(targetPath, function (err, targetStat) {
+		if (err) {
+			// pass through if it doesn't exist
+			if (err.code === 'ENOENT') {
+				stream.push(sourceFile);
+				return cb();
+			}
+
+			stream.emit('error', new gutil.PluginError('gulp-changed', err));
+			stream.push(sourceFile);
+			return cb();
+		}
+
+		if (sourceFile.stat.mtime > targetStat.mtime) {
+			stream.push(sourceFile);
+		}
+
+		cb();
+	});
+}
 
 module.exports = function (dest, opts) {
 	opts = opts || {};
@@ -24,24 +48,6 @@ module.exports = function (dest, opts) {
 			newPath = gutil.replaceExtension(newPath, opts.extension);
 		}
 
-		fs.stat(newPath, function (err, stats) {
-			if (err) {
-				// pass through if it doesn't exist
-				if (err.code === 'ENOENT') {
-					this.push(file);
-					return cb();
-				}
-
-				this.emit('error', new gutil.PluginError('gulp-changed', err));
-				this.push(file);
-				return cb();
-			}
-
-			if (file.stat.mtime > stats.mtime) {
-				this.push(file);
-			}
-
-			cb();
-		}.bind(this));
+		testLastModifiedTime(this, cb, file, newPath);
 	});
 };
