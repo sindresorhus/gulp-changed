@@ -1,27 +1,52 @@
-/*jslint node: true, white: true */
+/*jslint node: true, white: true, vars: true */
 
 'use strict';
 var fs = require('fs');
 var path = require('path');
 var gutil = require('gulp-util');
+var crypto = require('crypto');
 var through = require('through2');
 
-function compareLastModifiedTime(stream, cb, sourceFile, targetPath) {
-	fs.stat(targetPath, function (err, targetStat) {
-		if (err) {
-			// pass through if it doesn't exist
-			if (err.code === 'ENOENT') {
-				stream.push(sourceFile);
-				return cb();
-			}
-
+// Propagate "fs.*" operation errors to
+// the specified stream unless the error
+// was caused by a missing file.
+function fsOperationFailed(stream, sourceFile, err) {
+	if (err) {
+		if (err.code !== 'ENOENT') {
 			stream.emit('error', new gutil.PluginError('gulp-changed', err));
-			stream.push(sourceFile);
-			return cb();
 		}
 
-		if (sourceFile.stat.mtime > targetStat.mtime) {
-			stream.push(sourceFile);
+		stream.push(sourceFile);
+	}
+
+	return err;
+}
+
+// Only queue sourceFile in the specified
+// stream if target is older than source.
+function compareLastModifiedTime(stream, cb, sourceFile, targetPath) {
+	fs.stat(targetPath, function (err, targetStat) {
+		if (!fsOperationFailed(stream, sourceFile, err)) {
+			if (sourceFile.stat.mtime > targetStat.mtime) {
+				stream.push(sourceFile);
+			}
+		}
+
+		cb();
+	});
+}
+
+// Only queue sourceFile in the specified
+// stream if target has different SHA1 digest
+// than source (ignores timestamps).
+function compareSha1Digest(stream, cb, sourceFile, targetPath) {
+	fs.readFile(targetPath, function (err, targetData) {
+		if (!fsOperationFailed(err, stream)) {
+			var sourceDigest = crypto.createHash("sha1").update(sourceFile.file).digest("hex");
+			var targetDigest = crypto.createHash("sha1").update(targetData).digest("hex");
+			if (sourceDigest !== targetDigest) {
+				stream.push(sourceFile);
+			}
 		}
 
 		cb();
@@ -54,3 +79,4 @@ module.exports = function (dest, opts) {
 };
 
 module.exports.compareLastModifiedTime = compareLastModifiedTime;
+module.exports.compareSha1Digest = compareSha1Digest;
