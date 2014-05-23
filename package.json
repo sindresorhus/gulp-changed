@@ -23,7 +23,7 @@
     "node": ">=0.10.0"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha -R spec"
   },
   "files": [
     "index.js"
@@ -49,6 +49,7 @@
     "through2": "^0.4.0"
   },
   "devDependencies": {
+    "gulp": "*",
     "mocha": "*",
     "rimraf": "^2.2.6"
   }
