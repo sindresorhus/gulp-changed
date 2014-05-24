@@ -1,5 +1,3 @@
-/*jslint node: true, white: true, vars: true */
-
 'use strict';
 var fs = require('fs');
 var path = require('path');
@@ -59,7 +57,7 @@ function createHashDigestComparer(hashAlgorithm) {
 module.exports = function (dest, opts) {
 	opts = opts || {};
 	opts.cwd = opts.cwd || process.cwd();
-	opts.updateNeeded = opts.updateNeeded || compareLastModifiedTime;
+	opts.hasChanged = opts.hasChanged || compareLastModifiedTime;
 
 	if (!dest) {
 		throw new gutil.PluginError('gulp-changed', '`dest` required');
@@ -77,11 +75,10 @@ module.exports = function (dest, opts) {
 			newPath = gutil.replaceExtension(newPath, opts.extension);
 		}
 
-		opts.updateNeeded(this, cb, file, newPath);
+		opts.hasChanged(this, cb, file, newPath);
 	});
 };
 
 // Export built-in comparers
 module.exports.compareLastModifiedTime = compareLastModifiedTime;
-module.exports.compareMd5Digest = createHashDigestComparer('md5');
 module.exports.compareSha1Digest = createHashDigestComparer('sha1');

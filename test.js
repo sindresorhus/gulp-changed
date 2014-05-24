@@ -1,6 +1,3 @@
-/*jslint node: true, white: true, vars: true, nomen: true */
-/*global describe: false, it: false */
-
 'use strict';
 var fs = require('fs');
 var path = require('path');
@@ -30,7 +27,7 @@ function test(dest, opts) {
 		try {
 			fs.mkdirSync(dest);
 			fs.writeFileSync(path.join(dest, 'foo' + extension), '');
-		} catch (ignore) {}
+		} catch (err) {}
 
 		stream.on('data', function (file) {
 			files.push(file);
@@ -90,8 +87,8 @@ function testHash(hashAlgorithm) {
 
 		it('should not pass any files through in identical directories', function (cb) {
 			var s = gulp
-				.src('./testdata/identical/src/*')
-				.pipe(changed('./testdata/identical/trg', { updateNeeded: changed[hashAlgorithm] }));
+				.src('fixture/identical/src/*')
+				.pipe(changed('fixture/identical/trg', { hasChanged: changed[hashAlgorithm] }));
 			streamToArray(s, function (a) {
 				assert.equal(0, a.length);
 				cb();
@@ -100,8 +97,8 @@ function testHash(hashAlgorithm) {
 
 		it('should only pass through changed files using file extension', function (cb) {
 			var s = gulp
-				.src('./testdata/different/src/*')
-				.pipe(changed('./testdata/different/trg', { updateNeeded: changed[hashAlgorithm] }));
+				.src('fixture/different/src/*')
+				.pipe(changed('fixture/different/trg', { hasChanged: changed[hashAlgorithm] }));
 			streamToArray(s, function (a) {
 				assert.equal(1, a.length);
 				assert.equal('b', path.basename(a[0].path));
@@ -111,8 +108,8 @@ function testHash(hashAlgorithm) {
 
 		it('should only pass through changed files using extension .coffee', function (cb) {
 			var s = gulp
-				.src('./testdata/different.ext/src/*')
-				.pipe(changed('./testdata/different.ext/trg', { updateNeeded: changed[hashAlgorithm], extension: '.coffee' }));
+				.src('fixture/different.ext/src/*')
+				.pipe(changed('fixture/different.ext/trg', { hasChanged: changed[hashAlgorithm], extension: '.coffee' }));
 			streamToArray(s, function (a) {
 				assert.equal(1, a.length);
 				assert.equal('b.typescript', path.basename(a[0].path));
@@ -140,5 +137,4 @@ describe('gulp-changed with compareLastModifiedTime', function () {
 });
 
 
-testHash('compareMd5Digest');
 testHash('compareSha1Digest');
