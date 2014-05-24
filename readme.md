@@ -38,7 +38,7 @@ gulp.task('default', function () {
 
 #### destination
 
-_Type_: `string` (required)
+Type: `String`
 
 The destination directory. Same as you put into `gulp.dest()`.
 
@@ -48,17 +48,14 @@ This is needed to be able to compare the current files with the destination file
 
 ##### cwd
 
-_Type_: `string`
-
-_Default_: `process.cwd()`
+Type: `string`  
+Default: `process.cwd()`
 
 The working directory the folder is relative to.
 
 ##### extension
 
-_Type_: `string`
-
-_Default_: do not change extension
+Type: `string`
 
 Extension of the destination files.
 
@@ -73,11 +70,11 @@ gulp.task('jade', function () {
 });
 ```
 
-##### updateNeeded
+##### hasChanged
 
-_Type_: `function`
+Type: `function`
 
-_Default_: `changed.compareLastModifiedTime`
+Default: `changed.compareLastModifiedTime`
 
 Function that determines whether specified target file "changed" relative to the specified source file.
 
@@ -91,8 +88,8 @@ Example:
 
 ```js
 gulp.task('jade', function () {
-	gulp.src('./src/**/*.jade')
-		.pipe(changed('./app/', { updateNeeded: changed.compareSha1Digest }))
+	gulp.src('src/**/*.jade')
+		.pipe(changed('./app/', { hasChanged: changed.compareSha1Digest }))
 		.pipe(jade())
 		.pipe(gulp.dest('./app/'))
 });
