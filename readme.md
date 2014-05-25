@@ -7,7 +7,7 @@ No more wasting precious time on processing unchanged files.
 
 ## Install
 
-```bash
+```sh
 $ npm install --save-dev gulp-changed
 ```
 
@@ -61,12 +61,12 @@ Extension of the destination files.
 
 Useful if it differs from the original, like in the example below:
 
-```
+```js
 gulp.task('jade', function () {
-	gulp.src('./src/**/*.jade')
-		.pipe(changed('./app/', { extension: '.html' }))
+	gulp.src('src/**/*.jade')
+		.pipe(changed('app', {extension: '.html'}))
 		.pipe(jade())
-		.pipe(gulp.dest('./app/'))
+		.pipe(gulp.dest('app'))
 });
 ```
 
