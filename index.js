@@ -20,6 +20,12 @@ function fsOperationFailed(stream, sourceFile, err) {
 	return err;
 }
 
+// Calculate SHA1 hash digest for
+// the specified data (a buffer).
+function sha1(data) {
+  return crypto.createHash('sha1').update(data).digest('hex');
+}
+
 // Only queue sourceFile in the specified
 // stream if target is older than source.
 function compareLastModifiedTime(stream, cb, sourceFile, targetPath) {
@@ -37,20 +43,18 @@ function compareLastModifiedTime(stream, cb, sourceFile, targetPath) {
 // Create a function that will only queue sourceFile
 // in the specified stream if target has different
 // hash digest than source (ignores timestamps).
-function createHashDigestComparer(hashAlgorithm) {
-	return function compareHashDigest(stream, cb, sourceFile, targetPath) {
-		fs.readFile(targetPath, function (err, targetData) {
-			if (!fsOperationFailed(stream, sourceFile, err)) {
-				var sourceDigest = crypto.createHash(hashAlgorithm).update(sourceFile.contents).digest('hex');
-				var targetDigest = crypto.createHash(hashAlgorithm).update(targetData).digest('hex');
-				if (sourceDigest !== targetDigest) {
-					stream.push(sourceFile);
-				}
+function compareSha1Digest(stream, cb, sourceFile, targetPath) {
+	fs.readFile(targetPath, function (err, targetData) {
+		if (!fsOperationFailed(stream, sourceFile, err)) {
+			var sourceDigest = sha1(sourceFile.contents);
+			var targetDigest = sha1(targetData);
+			if (sourceDigest !== targetDigest) {
+				stream.push(sourceFile);
 			}
+		}
 
-			cb();
-		});
-	};
+		cb();
+	});
 }
 
 // Create 'gulp-changed' transform stream.
@@ -81,4 +85,4 @@ module.exports = function (dest, opts) {
 
 // Export built-in comparers
 module.exports.compareLastModifiedTime = compareLastModifiedTime;
-module.exports.compareSha1Digest = createHashDigestComparer('sha1');
+module.exports.compareSha1Digest = compareSha1Digest;
