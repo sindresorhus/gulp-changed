@@ -65,22 +65,6 @@ function test(dest, opts) {
 	});
 }
 
-// Simple helper function that converts specified
-// gulp stream into an array (invoking specified
-// callback 'cb' after stream closes).
-function streamToArray(s, cb) {
-	var a = [];
-	s.on('data', function (data) {
-		a.push(data);
-	});
-	s.on('end', function () {
-		cb(a);
-	});
-	s.on('error', function (err) {
-		cb(err);
-	});
-}
-
 describe('gulp-changed with compareLastModifiedTime', function () {
 
 	describe('using relative dest', function () {
