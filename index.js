@@ -23,7 +23,7 @@ function fsOperationFailed(stream, sourceFile, err) {
 // Calculate SHA1 hash digest for
 // the specified data (a buffer).
 function sha1(data) {
-  return crypto.createHash('sha1').update(data).digest('hex');
+	return crypto.createHash('sha1').update(data).digest('hex');
 }
 
 // Only queue sourceFile in the specified
