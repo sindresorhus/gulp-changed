@@ -5,9 +5,8 @@ var gutil = require('gulp-util');
 var crypto = require('crypto');
 var through = require('through2');
 
-// Propagate 'fs.*' operation errors to
-// the specified stream unless the error
-// was caused by a missing file.
+// Propagate 'fs.*' operation errors to the specified stream
+// unless the error was caused by a missing file.
 function fsOperationFailed(stream, sourceFile, err) {
 	if (err) {
 		if (err.code !== 'ENOENT') {
@@ -20,14 +19,12 @@ function fsOperationFailed(stream, sourceFile, err) {
 	return err;
 }
 
-// Calculate SHA1 hash digest for
-// the specified data (a buffer).
+// Calculate SHA1 hash digest for the specified data (a buffer).
 function sha1(data) {
 	return crypto.createHash('sha1').update(data).digest('hex');
 }
 
-// Only queue sourceFile in the specified
-// stream if target is older than source.
+// Only queue sourceFile in the specified stream if target is older than source.
 function compareLastModifiedTime(stream, cb, sourceFile, targetPath) {
 	fs.stat(targetPath, function (err, targetStat) {
 		if (!fsOperationFailed(stream, sourceFile, err)) {
@@ -40,9 +37,8 @@ function compareLastModifiedTime(stream, cb, sourceFile, targetPath) {
 	});
 }
 
-// Create a function that will only queue sourceFile
-// in the specified stream if target has different
-// hash digest than source (ignores timestamps).
+// Only queue sourceFile in the specified stream if target has different
+// SHA1 hash digest than source (ignores timestamps).
 function compareSha1Digest(stream, cb, sourceFile, targetPath) {
 	fs.readFile(targetPath, function (err, targetData) {
 		if (!fsOperationFailed(stream, sourceFile, err)) {
