@@ -6,7 +6,7 @@ var concatStream = require('concat-stream');
 var gulp = require('gulp');
 var gutil = require('gulp-util');
 var rimraf = require('rimraf');
-var changed = require('./index');
+var changed = require('./');
 
 function test(dest, opts) {
 	var desc = 'should only pass through changed files';
@@ -65,8 +65,7 @@ function test(dest, opts) {
 	});
 }
 
-describe('gulp-changed with compareLastModifiedTime', function () {
-
+describe('compareLastModifiedTime', function () {
 	describe('using relative dest', function () {
 		test('tmp');
 		test('tmp', { extension: '.coffee' });
@@ -74,42 +73,41 @@ describe('gulp-changed with compareLastModifiedTime', function () {
 
 	describe('using absolute dest', function () {
 		var absTmp = path.resolve(__dirname, 'tmp');
-
 		test(absTmp);
-		test(absTmp, { extension: '.coffee' });
+		test(absTmp, {extension: '.coffee'});
 	});
-
 });
 
-describe('gulp-changed with compareSha1Digest', function () {
-
+describe('compareSha1Digest', function () {
 	it('should not pass any files through in identical directories', function (cb) {
 		gulp.src('fixture/identical/src/*')
-			.pipe(changed('fixture/identical/trg', { hasChanged: changed.compareSha1Digest }))
-			.pipe(concatStream(function (a) {
-				assert.equal(0, a.length);
+			.pipe(changed('fixture/identical/trg', {hasChanged: changed.compareSha1Digest}))
+			.pipe(concatStream(function (buf) {
+				assert.equal(0, buf.length);
 				cb();
 			}));
 	});
 
 	it('should only pass through changed files using file extension', function (cb) {
 		gulp.src('fixture/different/src/*')
-			.pipe(changed('fixture/different/trg', { hasChanged: changed.compareSha1Digest }))
-			.pipe(concatStream(function (a) {
-				assert.equal(1, a.length);
-				assert.equal('b', path.basename(a[0].path));
+			.pipe(changed('fixture/different/trg', {hasChanged: changed.compareSha1Digest}))
+			.pipe(concatStream(function (buf) {
+				assert.equal(1, buf.length);
+				assert.equal('b', path.basename(buf[0].path));
 				cb();
 			}));
 	});
 
 	it('should only pass through changed files using extension .coffee', function (cb) {
 		gulp.src('fixture/different.ext/src/*')
-			.pipe(changed('fixture/different.ext/trg', { hasChanged: changed.compareSha1Digest, extension: '.coffee' }))
-			.pipe(concatStream(function (a) {
-				assert.equal(1, a.length);
-				assert.equal('b.typescript', path.basename(a[0].path));
+			.pipe(changed('fixture/different.ext/trg', {
+				hasChanged: changed.compareSha1Digest,
+				extension: '.coffee'
+			}))
+			.pipe(concatStream(function (buf) {
+				assert.equal(1, buf.length);
+				assert.equal('b.typescript', path.basename(buf[0].path));
 				cb();
 			}));
 	});
-
 });

@@ -75,31 +75,32 @@ gulp.task('jade', function () {
 Type: `function`  
 Default: `changed.compareLastModifiedTime`
 
-Function that determines whether specified target file "changed" relative to the specified source file.
+Function that determines whether the source file is different from the destination file.
 
-Built-in comparers are:
+###### Built-in comparators
 
 - `changed.compareLastModifiedTime`
 - `changed.compareSha1Digest`
 
-Example:
+###### Example
 
 ```js
 gulp.task('jade', function () {
 	gulp.src('src/**/*.jade')
-		.pipe(changed('./app/', { hasChanged: changed.compareSha1Digest }))
+		.pipe(changed('app', {hasChanged: changed.compareSha1Digest}))
 		.pipe(jade())
-		.pipe(gulp.dest('./app/'))
+		.pipe(gulp.dest('app'));
 });
 ```
 
-If defining a custom function, it will receive the following parameters from `gulp-changed`:
+You can also supply a custom comparator function which will receive the following arguments:
 
-- stream ([through2 Stream object](https://github.com/rvagg/through2#transformfunction)) - stream object created by `gulp-changed`; should be used to queue `sourceFile` to the stream output if it passes comparison; should also be used to report errors
-- cb (function) - indicates that comparison is complete (when called, no parameters)
-- sourceFile ([vinyl File object](https://github.com/wearefractal/vinyl#file)) - the file that is currently being processed by `changed` (as received by through2 stream in Gulp pipeline)
-- targetPath (string) - destination for `sourceFile` as an absolute path
+- `stream` *([transform object stream](https://github.com/rvagg/through2#transformfunction))* - should be used to queue `sourceFile` if it passes some comparison
+- `callback` *(function)* - should be called when done
+- `sourceFile` *([vinyl file object](https://github.com/wearefractal/vinyl#file))*
+- `destPath` *(string)* - destination for `sourceFile` as an absolute path
+
 
 ## License
 
-[MIT](http://opensource.org/licenses/MIT) © [Sindre Sorhus](http://sindresorhus.com)
+MIT © [Sindre Sorhus](http://sindresorhus.com)

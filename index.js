@@ -1,12 +1,11 @@
 'use strict';
 var fs = require('fs');
 var path = require('path');
-var gutil = require('gulp-util');
 var crypto = require('crypto');
+var gutil = require('gulp-util');
 var through = require('through2');
 
-// Propagate 'fs.*' operation errors to the specified stream
-// unless the error was caused by a missing file.
+// ignore missing file error
 function fsOperationFailed(stream, sourceFile, err) {
 	if (err) {
 		if (err.code !== 'ENOENT') {
@@ -19,12 +18,11 @@ function fsOperationFailed(stream, sourceFile, err) {
 	return err;
 }
 
-// Calculate SHA1 hash digest for the specified data (a buffer).
-function sha1(data) {
-	return crypto.createHash('sha1').update(data).digest('hex');
+function sha1(buf) {
+	return crypto.createHash('sha1').update(buf).digest('hex');
 }
 
-// Only queue sourceFile in the specified stream if target is older than source.
+// only push through files changed more recently than the destination files
 function compareLastModifiedTime(stream, cb, sourceFile, targetPath) {
 	fs.stat(targetPath, function (err, targetStat) {
 		if (!fsOperationFailed(stream, sourceFile, err)) {
@@ -37,13 +35,13 @@ function compareLastModifiedTime(stream, cb, sourceFile, targetPath) {
 	});
 }
 
-// Only queue sourceFile in the specified stream if target has different
-// SHA1 hash digest than source (ignores timestamps).
+// only push through files with different SHA1 than the destination files
 function compareSha1Digest(stream, cb, sourceFile, targetPath) {
 	fs.readFile(targetPath, function (err, targetData) {
 		if (!fsOperationFailed(stream, sourceFile, err)) {
 			var sourceDigest = sha1(sourceFile.contents);
 			var targetDigest = sha1(targetData);
+
 			if (sourceDigest !== targetDigest) {
 				stream.push(sourceFile);
 			}
@@ -53,7 +51,6 @@ function compareSha1Digest(stream, cb, sourceFile, targetPath) {
 	});
 }
 
-// Create 'gulp-changed' transform stream.
 module.exports = function (dest, opts) {
 	opts = opts || {};
 	opts.cwd = opts.cwd || process.cwd();
@@ -79,6 +76,5 @@ module.exports = function (dest, opts) {
 	});
 };
 
-// Export built-in comparers
 module.exports.compareLastModifiedTime = compareLastModifiedTime;
 module.exports.compareSha1Digest = compareSha1Digest;
