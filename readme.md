@@ -72,8 +72,7 @@ gulp.task('jade', function () {
 
 ##### hasChanged
 
-Type: `function`
-
+Type: `function`  
 Default: `changed.compareLastModifiedTime`
 
 Function that determines whether specified target file "changed" relative to the specified source file.
@@ -81,7 +80,6 @@ Function that determines whether specified target file "changed" relative to the
 Built-in comparers are:
 
 - `changed.compareLastModifiedTime`
-- `changed.compareMd5Digest`
 - `changed.compareSha1Digest`
 
 Example:
