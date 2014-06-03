@@ -49,6 +49,8 @@
     "through2": "^0.4.0"
   },
   "devDependencies": {
+    "concat-stream": "^1.4.6",
+    "gulp": "^3.0.0",
     "mocha": "*",
     "rimraf": "^2.2.6"
   }
