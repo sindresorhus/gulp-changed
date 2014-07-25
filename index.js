@@ -9,7 +9,9 @@ var through = require('through2');
 function fsOperationFailed(stream, sourceFile, err) {
 	if (err) {
 		if (err.code !== 'ENOENT') {
-			stream.emit('error', new gutil.PluginError('gulp-changed', err));
+			stream.emit('error', new gutil.PluginError('gulp-changed', err, {
+				fileName: sourceFile.path
+			}));
 		}
 
 		stream.push(sourceFile);
