@@ -64,8 +64,8 @@ module.exports = function (dest, opts) {
 
 	return through.obj(function (file, enc, cb) {
 		if (file.isNull()) {
-			this.push(file);
-			return cb();
+			cb(null, file);
+			return;
 		}
 
 		var newPath = path.resolve(opts.cwd, dest, file.relative);

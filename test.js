@@ -68,7 +68,7 @@ function test(dest, opts) {
 describe('compareLastModifiedTime', function () {
 	describe('using relative dest', function () {
 		test('tmp');
-		test('tmp', { extension: '.coffee' });
+		test('tmp', {extension: '.coffee'});
 	});
 
 	describe('using absolute dest', function () {

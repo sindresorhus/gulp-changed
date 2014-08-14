@@ -40,7 +40,7 @@ gulp.task('default', function () {
 
 #### destination
 
-Type: `String`
+Type: `string`
 
 The destination directory. Same as you put into `gulp.dest()`.
 
