@@ -25,6 +25,10 @@ function test(dest, opts) {
 		var stream = changed(dest, opts);
 		var files = [];
 
+		if (typeof dest === 'function') {
+			dest = 'tmp';
+		}
+
 		try {
 			fs.mkdirSync(dest);
 			fs.writeFileSync(path.join(dest, 'foo' + extension), '');
@@ -75,6 +79,12 @@ describe('compareLastModifiedTime', function () {
 		var absTmp = path.resolve(__dirname, 'tmp');
 		test(absTmp);
 		test(absTmp, {extension: '.coffee'});
+	});
+
+	describe('dest can be a function', function () {
+		test(function (file) {
+			return 'tmp';
+		});
 	});
 });
 

@@ -40,11 +40,13 @@ gulp.task('default', function () {
 
 #### destination
 
-Type: `string`
+Type: `string`, `function`
 
 The destination directory. Same as you put into `gulp.dest()`.
 
 This is needed to be able to compare the current files with the destination files.
+
+Can also be a function returning a destination directory path.
 
 #### options
 

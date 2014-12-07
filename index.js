@@ -68,6 +68,10 @@ module.exports = function (dest, opts) {
 			return;
 		}
 
+		if (typeof dest === 'function') {
+			dest = dest(file);
+		}
+
 		var newPath = path.resolve(opts.cwd, dest, file.relative);
 
 		if (opts.extension) {
