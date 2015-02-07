@@ -3,6 +3,7 @@
 var fs = require('fs');
 var path = require('path');
 var crypto = require('crypto');
+var gulp = require('gulp');
 var gutil = require('gulp-util');
 var through = require('through2');
 
@@ -46,23 +47,118 @@ function sha1(buf) {
 }
 
 /**
+ * Compare last modified time of source and target.
+ *
+ * @param {Stream} stream - Through stream object.
+ * @param {File} sourceFile - Vinyl file object.
+ * @param {string} targetPath - Path of the target.
+ * @param {Function} cb - Done callback which receives `true` as the first argument if the file should be pushed,
+ *   otherwise `false`.
+ * @return {undefined}
+ */
+function doCompareLastModifiedTime(stream, sourceFile, targetPath, cb) {
+	fs.stat(targetPath, function (err, targetStat) {
+		cb(!fsOperationFailed(stream, sourceFile, err) && sourceFile.stat.mtime > targetStat.mtime);
+	});
+}
+
+/**
+ * Compare last modified time of a source to many target files and only push through files which changed.
+ *
+ * @param {File} sourceFile - Vinyl file object.
+ * @param {Array|string} pattern - Glob pattern to match.
+ * @param {Function} cb - Done callback which receives `true` as the first argument if the file should be pushed,
+ *   otherwise `false`.
+ * @return {undefined}
+ */
+function doCompareLastModifiedTimeOfManyToOne(sourceFile, pattern, cb) {
+	gulp.src(pattern)
+		.on('end', cb.bind(null, false))
+		.pipe(through.obj(function (file, enc, cb) {
+			if (file.isNull()) {
+				cb(null, file);
+				return;
+			}
+
+			// We use an error to end the stream without emitting an end event.
+			if (sourceFile.stat.mtime > file.stat.mtime) {
+				this.emit('error', new gutil.PluginError(pluginName, file.path + ' has changed ...'));
+			}
+		}))
+		.on('error', cb.bind(null, true));
+}
+
+/**
+ * Push source on stream and call the callback, optionally cache the state.
+ *
+ * @param {Stream} stream - Through stream object.
+ * @param {File} sourceFile - Vinyl file object.
+ * @param {Function} cb - Done callback.
+ * @param {*} [cache] - The caching object.
+ * @param {null|string} [key] - The caching key.
+ * @param {boolean} really - Flag indicating if the source file should be pushed on the stream or not.
+ * @return {undefined}
+ */
+function doPush(stream, sourceFile, cb, cache, key, really) {
+	if (typeof cache === 'boolean') {
+		really = cache;
+	} else if (key) {
+		cache[key] = really;
+	}
+
+	if (really === true) {
+		stream.push(sourceFile);
+	}
+
+	cb();
+}
+
+/**
  * Compare last modified time of source and target and only push through files which changed.
  *
  * @param {Stream} stream - Through stream object.
  * @param {Function} cb - Done callback.
  * @param {File} sourceFile - Vinyl file object.
  * @param {string} targetPath - Path of the target.
+ * @param {Array|boolean|null|string} [pattern] - Glob pattern to match.
  * @return {undefined}
  */
-function compareLastModifiedTime(stream, cb, sourceFile, targetPath) {
-	fs.stat(targetPath, function (err, targetStat) {
-		if (!fsOperationFailed(stream, sourceFile, err)) {
-			if (sourceFile.stat.mtime > targetStat.mtime) {
-				stream.push(sourceFile);
-			}
+function compareLastModifiedTime(stream, cb, sourceFile, targetPath, pattern) {
+	/**
+	 * Caching key.
+	 *
+	 * @type {string|undefined}
+	 */
+	var key;
+
+	/**
+	 * Reference to this function object, we use it as the cache for already matched many-to-one results, since they are
+	 * pretty heavy to compute.
+	 *
+	 * @type {compareLastModifiedTime}
+	 */
+	var self = compareLastModifiedTime;
+
+	// Simple case, only match source to target.
+	if (!pattern) {
+		return doCompareLastModifiedTime(stream, sourceFile, targetPath, doPush.bind(null, stream, sourceFile, cb));
+	}
+
+	// Construct a reusable caching key based on the available data.
+	key = pattern instanceof Array ? pattern.join() : pattern;
+
+	// Check if we already know this cache key and directly return.
+	if (key in self) {
+		return doPush(stream, sourceFile, cb, self[key]);
+	}
+
+	// We are dealing with a target file and a pattern, check the target file first (fast).
+	doCompareLastModifiedTime(stream, sourceFile, targetPath, function (push) {
+		if (push === true) {
+			return doPush(stream, sourceFile, cb, self, key, true);
 		}
 
-		cb();
+		doCompareLastModifiedTimeOfManyToOne(sourceFile, pattern, doPush.bind(null, stream, sourceFile, cb, self, key));
 	});
 }
 
@@ -101,10 +197,12 @@ function compareSha1Digest(stream, cb, sourceFile, targetPath) {
  *   cwd: string
  *   extension: string
  *   hasChanged: Function
+ *   pattern: Array|string
  * }} [opts] - Plugin options:
  *   - `cwd` is the current working directory to resolve paths, defaults to `process.cwd`.
  *   - `extension` can be used to replace the source's extension if the destination file has a different one.
  *   - `hasChanged` is the function to determine if a file has changed, defaults to `compareLastModified` of this plugin.
+ *   - `pattern` an array or string pattern which will be passed to `gulp.src` for many-to-one matching.
  * @return {undefined}
  */
 module.exports = function (dest, opts) {
@@ -129,7 +227,7 @@ module.exports = function (dest, opts) {
 			newPath = gutil.replaceExtension(newPath, opts.extension);
 		}
 
-		opts.hasChanged(this, cb, file, newPath);
+		opts.hasChanged(this, cb, file, newPath, opts.pattern);
 	});
 };
 
