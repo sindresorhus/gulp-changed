@@ -47,73 +47,6 @@ function sha1(buf) {
 }
 
 /**
- * Compare last modified time of source and target.
- *
- * @param {Stream} stream - Through stream object.
- * @param {File} sourceFile - Vinyl file object.
- * @param {string} targetPath - Path of the target.
- * @param {Function} cb - Done callback which receives `true` as the first argument if the file should be pushed,
- *   otherwise `false`, the second argument is the stats result for the target file.
- * @return {undefined}
- */
-function doCompareLastModifiedTime(stream, sourceFile, targetPath, cb) {
-	fs.stat(targetPath, function (err, targetStat) {
-		cb(!fsOperationFailed(stream, sourceFile, err) && sourceFile.stat.mtime > targetStat.mtime, targetStat);
-	});
-}
-
-/**
- * Compare last modified time of a source to many target files and only push through files which changed.
- *
- * @param {{}} targetStat - Stats of the target file.
- * @param {Array|string} pattern - Glob pattern to match.
- * @param {Function} cb - Done callback which receives `true` as the first argument if the file should be pushed,
- *   otherwise `false`.
- * @return {undefined}
- */
-function doCompareLastModifiedTimeOfManyToOne(targetStat, pattern, cb) {
-	gulp.src(pattern)
-		.on('end', cb.bind(null, false))
-		.pipe(through.obj(function (file, enc, cb) {
-			if (file.isNull()) {
-				cb(null, file);
-				return;
-			}
-
-			// We use an error to end the stream without emitting an end event.
-			if (targetStat.mtime > file.stat.mtime) {
-				this.emit('error', new gutil.PluginError(pluginName, file.path + ' has changed ...'));
-			}
-		}))
-		.on('error', cb.bind(null, true));
-}
-
-/**
- * Push source on stream and call the callback, optionally cache the state.
- *
- * @param {Stream} stream - Through stream object.
- * @param {File} sourceFile - Vinyl file object.
- * @param {Function} cb - Done callback.
- * @param {*} [cache] - The caching object.
- * @param {null|string} [key] - The caching key.
- * @param {boolean} really - Flag indicating if the source file should be pushed on the stream or not.
- * @return {undefined}
- */
-function doPush(stream, sourceFile, cb, cache, key, really) {
-	if (typeof cache === 'boolean') {
-		really = cache;
-	} else if (key) {
-		cache[key] = really;
-	}
-
-	if (really === true) {
-		stream.push(sourceFile);
-	}
-
-	cb();
-}
-
-/**
  * Compare last modified time of source and target and only push through files which changed.
  *
  * @param {Stream} stream - Through stream object.
@@ -129,7 +62,7 @@ function compareLastModifiedTime(stream, cb, sourceFile, targetPath, pattern) {
 	 *
 	 * @type {string|undefined}
 	 */
-	var key;
+	var key = pattern instanceof Array ? pattern.join() : pattern;
 
 	/**
 	 * Reference to this function object, we use it as the cache for already matched many-to-one results, since they are
@@ -139,26 +72,34 @@ function compareLastModifiedTime(stream, cb, sourceFile, targetPath, pattern) {
 	 */
 	var self = compareLastModifiedTime;
 
-	// Simple case, only match source to target.
-	if (!pattern) {
-		return doCompareLastModifiedTime(stream, sourceFile, targetPath, doPush.bind(null, stream, sourceFile, cb));
-	}
+	fs.stat(targetPath, function (error, targetStat) {
+		if (!fsOperationFailed(stream, sourceFile, error)) {
+			if (sourceFile.stat.mtime > targetStat.mtime || (pattern && key in self && self[key] === true)) {
+				stream.push(sourceFile);
+			} else if (pattern) {
+				gulp.src(pattern)
+					.on('end', cb)
+					.pipe(through.obj(function (file, enc, cb) {
+						if (file.isNull()) {
+							cb(null, file);
+							return;
+						}
 
-	// Construct a reusable caching key based on the available data.
-	key = pattern instanceof Array ? pattern.join() : pattern;
+						if (file.stat.mtime > targetStat.mtime) {
+							this.emit('error', file.path + ' has changed ...');
+						}
+					}))
+					.on('error', function () {
+						self[key] = true;
+						stream.push(sourceFile);
+						cb();
+					});
 
-	// Check if we already know this cache key and directly return.
-	if (key in self) {
-		return doPush(stream, sourceFile, cb, self[key]);
-	}
-
-	// We are dealing with a target file and a pattern, check the target file first (fast).
-	doCompareLastModifiedTime(stream, sourceFile, targetPath, function (push, targetStat) {
-		if (push === true) {
-			return doPush(stream, sourceFile, cb, self, key, true);
+				return; // Bail!
+			}
 		}
 
-		doCompareLastModifiedTimeOfManyToOne(sourceFile, pattern, doPush.bind(null, stream, targetStat, cb, self, key));
+		cb();
 	});
 }
 
