@@ -1,4 +1,7 @@
 'use strict';
+
+var pluginName = 'gulp-changed';
+
 var fs = require('fs');
 var path = require('path');
 var crypto = require('crypto');
@@ -9,7 +12,7 @@ var through = require('through2');
 function fsOperationFailed(stream, sourceFile, err) {
 	if (err) {
 		if (err.code !== 'ENOENT') {
-			stream.emit('error', new gutil.PluginError('gulp-changed', err, {
+			stream.emit('error', new gutil.PluginError(pluginName, err, {
 				fileName: sourceFile.path
 			}));
 		}
@@ -59,7 +62,7 @@ module.exports = function (dest, opts) {
 	opts.hasChanged = opts.hasChanged || compareLastModifiedTime;
 
 	if (!dest) {
-		throw new gutil.PluginError('gulp-changed', '`dest` required');
+		throw new gutil.PluginError(pluginName, '`dest` required');
 	}
 
 	return through.obj(function (file, enc, cb) {
