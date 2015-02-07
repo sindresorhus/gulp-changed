@@ -215,19 +215,26 @@ module.exports = function (dest, opts) {
 	opts.hasChanged = opts.hasChanged || compareLastModifiedTime;
 
 	return through.obj(function (file, enc, cb) {
+		var targetPath, fileClone;
+
 		if (file.isNull()) {
 			cb(null, file);
 			return;
 		}
 
-		var dest2 = typeof dest === 'function' ? dest(file) : dest;
-		var newPath = path.resolve(opts.cwd, dest2, file.relative);
-
-		if (opts.extension) {
-			newPath = gutil.replaceExtension(newPath, opts.extension);
+		if (typeof dest === 'function') {
+			// Create a clone and allow the callback to alter the file object without altering the stream's file.
+			fileClone = file.clone();
+			targetPath = path.resolve(opts.cwd, dest(fileClone), fileClone.relative);
+		} else {
+			targetPath = path.resolve(opts.cwd, dest, file.relative);
 		}
 
-		opts.hasChanged(this, cb, file, newPath, opts.pattern);
+		if (opts.extension) {
+			targetPath = gutil.replaceExtension(targetPath, opts.extension);
+		}
+
+		opts.hasChanged(this, cb, file, targetPath, opts.pattern);
 	});
 };
 
