@@ -57,13 +57,13 @@ function compareSha1Digest(stream, cb, sourceFile, targetPath) {
 }
 
 module.exports = function (dest, opts) {
-	opts = opts || {};
-	opts.cwd = opts.cwd || process.cwd();
-	opts.hasChanged = opts.hasChanged || compareLastModifiedTime;
-
 	if (!dest) {
 		throw new gutil.PluginError(pluginName, '`dest` required');
 	}
+
+	opts = opts || {};
+	opts.cwd = opts.cwd || process.cwd();
+	opts.hasChanged = opts.hasChanged || compareLastModifiedTime;
 
 	return through.obj(function (file, enc, cb) {
 		if (file.isNull()) {
