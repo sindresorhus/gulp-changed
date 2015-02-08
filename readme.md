@@ -1,4 +1,4 @@
-# [gulp](http://gulpjs.com)-changed [![Build Status](https://travis-ci.org/sindresorhus/gulp-changed.svg?branch=master)](https://travis-ci.org/sindresorhus/gulp-changed)
+# gulp-changed [![Build Status](https://travis-ci.org/sindresorhus/gulp-changed.svg?branch=master)](https://travis-ci.org/sindresorhus/gulp-changed)
 
 > Only pass through changed files
 
@@ -9,7 +9,7 @@ By default it's only able to detect whether files in the stream changed. If you 
 
 ## Install
 
-```sh
+```
 $ npm install --save-dev gulp-changed
 ```
 
