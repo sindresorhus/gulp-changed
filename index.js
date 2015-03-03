@@ -79,5 +79,6 @@ module.exports = function (dest, opts) {
 	});
 };
 
+module.exports.fsOperationFailed = fsOperationFailed;
 module.exports.compareLastModifiedTime = compareLastModifiedTime;
 module.exports.compareSha1Digest = compareSha1Digest;
