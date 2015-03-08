@@ -40,6 +40,11 @@ function compareLastModifiedTime(stream, cb, sourceFile, targetPath) {
 // only push through files with different SHA1 than the destination files
 function compareSha1Digest(stream, cb, sourceFile, targetPath) {
 	fs.readFile(targetPath, function (err, targetData) {
+		if (sourceFile.isNull()) {
+			cb(null, file);
+			return;
+		}
+
 		if (!fsOperationFailed(stream, sourceFile, err)) {
 			var sourceDigest = sha1(sourceFile.contents);
 			var targetDigest = sha1(targetData);
@@ -63,11 +68,6 @@ module.exports = function (dest, opts) {
 	}
 
 	return through.obj(function (file, enc, cb) {
-		if (file.isNull()) {
-			cb(null, file);
-			return;
-		}
-
 		var dest2 = typeof dest === 'function' ? dest(file) : dest;
 		var newPath = path.resolve(opts.cwd, dest2, file.relative);
 
