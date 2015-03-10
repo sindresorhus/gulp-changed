@@ -41,7 +41,7 @@ function compareLastModifiedTime(stream, cb, sourceFile, targetPath) {
 function compareSha1Digest(stream, cb, sourceFile, targetPath) {
 	fs.readFile(targetPath, function (err, targetData) {
 		if (sourceFile.isNull()) {
-			cb(null, file);
+			cb(null, sourceFile);
 			return;
 		}
 
