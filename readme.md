@@ -19,7 +19,7 @@ $ npm install --save-dev gulp-changed
 ```js
 var gulp = require('gulp');
 var changed = require('gulp-changed');
-var ngmin = require('gulp-ngmin'); // just as an example
+var ngAnnotate = require('gulp-ng-annotate'); // just as an example
 
 var SRC = 'src/*.js';
 var DEST = 'dist';
@@ -27,9 +27,9 @@ var DEST = 'dist';
 gulp.task('default', function () {
 	return gulp.src(SRC)
 		.pipe(changed(DEST))
-		// ngmin will only get the files that
+		// ngAnnotate will only get the files that
 		// changed since the last time it was run
-		.pipe(ngmin())
+		.pipe(ngAnnotate())
 		.pipe(gulp.dest(DEST));
 });
 ```
