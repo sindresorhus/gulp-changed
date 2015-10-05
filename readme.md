@@ -81,6 +81,12 @@ Default: `changed.compareLastModifiedTime`
 
 Function that determines whether the source file is different from the destination file.
 
+##### revManifest
+
+Type: `string`
+
+Path to a [gulp-rev](https://github.com/sindresorhus/gulp-rev) manifest generated from a previous build. Allow incremental builds with file revisioning support.
+
 ###### Built-in comparators
 
 - `changed.compareLastModifiedTime`

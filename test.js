@@ -86,6 +86,7 @@ describe('compareLastModifiedTime', function () {
 			return 'tmp';
 		});
 	});
+
 });
 
 describe('compareSha1Digest', function () {
@@ -120,4 +121,34 @@ describe('compareSha1Digest', function () {
 				cb();
 			}));
 	});
+
+});
+
+describe('using revManifest', function () {
+
+	it('should use a revision manifest if provided', function(cb) {
+		gulp.src('fixture/revisioned/src/*')
+			.pipe(changed('fixture/revisioned/trg', {
+				revManifest: 'fixture/revisioned/rev-manifest.json'
+			}))
+			.pipe(concatStream(function (buf) {
+				assert.equal(1, buf.length);
+				assert.equal('b', path.basename(buf[0].path));
+				cb();
+			}));
+	});
+
+	it('should pass all the files if the revision manifest does not yet exist', function(cb) {
+		gulp.src('fixture/revisioned/src/*')
+			.pipe(changed('fixture/revisioned/trg', {
+				revManifest: 'fixture/revisioned/do-no-exist.json'
+			}))
+			.pipe(concatStream(function (buf) {
+				assert.equal(2, buf.length);
+				assert.equal('a', path.basename(buf[0].path));
+				assert.equal('b', path.basename(buf[1].path));
+				cb();
+			}));
+	});
+
 });

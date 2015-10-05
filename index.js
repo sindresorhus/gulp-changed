@@ -75,7 +75,35 @@ module.exports = function (dest, opts) {
 			newPath = gutil.replaceExtension(newPath, opts.extension);
 		}
 
-		opts.hasChanged(this, cb, file, newPath);
+		if (opts.revManifest) {
+			var stream = this;
+			fs.readFile(opts.revManifest, 'utf8', function(err, content) {
+				if (err) {
+					// on clean build, we won't have a rev manifest 
+					if (err.code !== 'ENOENT') {
+						stream.emit('error', new gutil.PluginError('gulp-changed', err, {
+							fileName: opts.revManifest
+						}));
+					}
+					stream.push(file);
+					cb();
+				} else {
+					var revManifest;
+					try {
+						revManifest = JSON.parse(content);
+					} catch(e){}
+					if (!revManifest || !revManifest[file.relative]) {
+						stream.push(file);
+						cb();
+					} else {
+						var revedPath = path.resolve(opts.cwd, dest2, revManifest[file.relative]);
+						opts.hasChanged(this, cb, file, revedPath);
+					}
+				}
+			});
+		} else {
+			opts.hasChanged(this, cb, file, newPath);
+		}
 	});
 };
 
