@@ -58,21 +58,32 @@ function compareSha1Digest(stream, cb, sourceFile, targetPath) {
 	});
 }
 
+function compareSha1DigestHistory(stream, cb, sourceFile, targetPath) {
+	var newSha = sha1(sourceFile.contents);
+
+	if (shas[sourceFile.path] !== newSha) {
+		stream.push(sourceFile);
+	}
+
+	shas[sourceFile.path] = newSha;
+	cb();
+};
+
 module.exports = function (dest, opts) {
 	opts = opts || {};
 	opts.cwd = opts.cwd || process.cwd();
-	opts.hasChanged = opts.hasChanged || compareLastModifiedTime;
-
-	if (!dest) {
-		throw new gutil.PluginError('gulp-changed', '`dest` required');
-	}
+	opts.hasChanged = opts.hasChanged || (dest ? compareLastModifiedTime : compareSha1DigestHistory);
 
 	return through.obj(function (file, enc, cb) {
-		var dest2 = typeof dest === 'function' ? dest(file) : dest;
-		var newPath = path.resolve(opts.cwd, dest2, file.relative);
+		var dest2, newPath;
 
-		if (opts.extension) {
-			newPath = gutil.replaceExtension(newPath, opts.extension);
+		if (dest) {
+			dest2 = typeof dest === 'function' ? dest(file) : dest;
+			newPath = path.resolve(opts.cwd, dest2, file.relative);
+
+			if (opts.extension) {
+				newPath = gutil.replaceExtension(newPath, opts.extension);
+			}
 		}
 
 		opts.hasChanged(this, cb, file, newPath);
@@ -81,3 +92,4 @@ module.exports = function (dest, opts) {
 
 module.exports.compareLastModifiedTime = compareLastModifiedTime;
 module.exports.compareSha1Digest = compareSha1Digest;
+var shas = module.exports.shas = {};
