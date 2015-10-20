@@ -54,7 +54,7 @@ If destination is `null` or `undefined`, only the source file SHA1 history will 
 
 ##### cwd
 
-Type: `string`
+Type: `string`  
 Default: `process.cwd()`
 
 The working directory the folder is relative to.
@@ -78,7 +78,7 @@ gulp.task('jade', function () {
 
 ##### hasChanged
 
-Type: `function`
+Type: `function`  
 Default: `changed.compareLastModifiedTime`
 
 Function that determines whether the source file is different from the destination file.

@@ -75,7 +75,8 @@ module.exports = function (dest, opts) {
 	opts.hasChanged = opts.hasChanged || (dest ? compareLastModifiedTime : compareSha1DigestHistory);
 
 	return through.obj(function (file, enc, cb) {
-		var dest2, newPath;
+		var dest2;
+		var newPath;
 
 		if (dest) {
 			dest2 = typeof dest === 'function' ? dest(file) : dest;
