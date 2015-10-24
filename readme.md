@@ -17,14 +17,14 @@ $ npm install --save-dev gulp-changed
 ## Usage
 
 ```js
-var gulp = require('gulp');
-var changed = require('gulp-changed');
-var ngAnnotate = require('gulp-ng-annotate'); // just as an example
+const gulp = require('gulp');
+const changed = require('gulp-changed');
+const ngAnnotate = require('gulp-ng-annotate'); // just as an example
 
-var SRC = 'src/*.js';
-var DEST = 'dist';
+const SRC = 'src/*.js';
+const DEST = 'dist';
 
-gulp.task('default', function () {
+gulp.task('default', () => {
 	return gulp.src(SRC)
 		.pipe(changed(DEST))
 		// ngAnnotate will only get the files that
@@ -66,8 +66,8 @@ Extension of the destination files.
 Useful if it differs from the original, like in the example below:
 
 ```js
-gulp.task('jade', function () {
-	gulp.src('src/**/*.jade')
+gulp.task('jade', () => {
+	return gulp.src('src/**/*.jade')
 		.pipe(changed('app', {extension: '.html'}))
 		.pipe(jade())
 		.pipe(gulp.dest('app'))
@@ -89,8 +89,8 @@ Function that determines whether the source file is different from the destinati
 ###### Example
 
 ```js
-gulp.task('jade', function () {
-	gulp.src('src/**/*.jade')
+gulp.task('jade', () => {
+	return gulp.src('src/**/*.jade')
 		.pipe(changed('app', {hasChanged: changed.compareSha1Digest}))
 		.pipe(jade())
 		.pipe(gulp.dest('app'));
