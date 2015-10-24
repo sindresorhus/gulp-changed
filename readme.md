@@ -105,6 +105,11 @@ You can also supply a custom comparator function which will receive the followin
 - `destPath` *(string)* - destination for `sourceFile` as an absolute path
 
 
+## In-place change monitoring
+
+If you're looking to process source files in-place without any build output (formatting, linting, etc), have a look at [gulp-changed-in-place](https://github.com/alexgorbatchev/gulp-changed-in-place).
+
+
 ## License
 
 MIT © [Sindre Sorhus](http://sindresorhus.com)
