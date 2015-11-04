@@ -3,7 +3,7 @@ var fs = require('fs');
 var path = require('path');
 var crypto = require('crypto');
 var gutil = require('gulp-util');
-var through = require('through2');
+var Transform = require('stream').Transform;
 
 // ignore missing file error
 function fsOperationFailed(stream, sourceFile, err) {
@@ -67,7 +67,11 @@ module.exports = function (dest, opts) {
 		throw new gutil.PluginError('gulp-changed', '`dest` required');
 	}
 
-	return through.obj(function (file, enc, cb) {
+	var stream = Transform({
+		objectMode: true
+	});
+
+	stream._transform = function (file, enc, cb) {
 		var dest2 = typeof dest === 'function' ? dest(file) : dest;
 		var newPath = path.resolve(opts.cwd, dest2, file.relative);
 
@@ -76,7 +80,9 @@ module.exports = function (dest, opts) {
 		}
 
 		opts.hasChanged(this, cb, file, newPath);
-	});
+	};
+
+	return stream;
 };
 
 module.exports.compareLastModifiedTime = compareLastModifiedTime;
