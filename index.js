@@ -93,4 +93,5 @@ module.exports = function (dest, opts) {
 };
 
 module.exports.compareLastModifiedTime = compareLastModifiedTime;
+module.exports.compareLastModifiedTimeReversed = compareLastModifiedTimeReversed;
 module.exports.compareSha1Digest = compareSha1Digest;
