@@ -37,6 +37,19 @@ function compareLastModifiedTime(stream, cb, sourceFile, targetPath) {
 	});
 }
 
+// only push through files changed less recently than the destination files
+function compareLastModifiedTimeReversed(stream, cb, sourceFile, targetPath) {
+	fs.stat(targetPath, function (err, targetStat) {
+		if (!fsOperationFailed(stream, sourceFile, err)) {
+			if (sourceFile.stat.mtime < targetStat.mtime) {
+				stream.push(sourceFile);
+			}
+		}
+
+		cb();
+	});
+}
+
 // only push through files with different SHA1 than the destination files
 function compareSha1Digest(stream, cb, sourceFile, targetPath) {
 	fs.readFile(targetPath, function (err, targetData) {
