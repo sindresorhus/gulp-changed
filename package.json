@@ -1,9 +1,9 @@
 {
-  "name": "gulp-changed",
-  "version": "1.3.0",
+  "name": "gulp-changed-ex",
+  "version": "1.3.1",
   "description": "Only pass through changed files",
   "license": "MIT",
-  "repository": "sindresorhus/gulp-changed",
+  "repository": "misticwonder/gulp-changed",
   "author": {
     "name": "Sindre Sorhus",
     "email": "sindresorhus@gmail.com",
@@ -21,6 +21,10 @@
     {
       "name": "Milan Gardian",
       "url": "https://github.com/milang"
+    },
+    {
+      "name": "Andrey Korovin",
+      "url": "https://github.com/misticwonder"
     }
   ],
   "engines": {
