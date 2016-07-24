@@ -28,7 +28,7 @@ function sha1(buf) {
 function compareLastModifiedTime(stream, cb, sourceFile, targetPath) {
 	fs.stat(targetPath, function (err, targetStat) {
 		if (!fsOperationFailed(stream, sourceFile, err)) {
-			if (sourceFile.stat.mtime > targetStat.mtime) {
+			if (sourceFile.stat && sourceFile.stat.mtime > targetStat.mtime) {
 				stream.push(sourceFile);
 			}
 		}
