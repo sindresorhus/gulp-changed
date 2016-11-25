@@ -121,3 +121,35 @@ describe('compareSha1Digest', function () {
 			}));
 	});
 });
+
+describe('in-place file check', function () {
+	beforeEach(function () {
+		Object.keys(changed.shas).forEach(function (key) {
+			delete changed.shas[key];
+		});
+	});
+
+	it('passes all files on start', function (cb) {
+		gulp.src('fixture/different/src/*')
+			.pipe(changed())
+			.pipe(concatStream(function (buf) {
+				assert.equal(2, buf.length);
+				assert.equal('a', path.basename(buf[0].path));
+				assert.equal('b', path.basename(buf[1].path));
+				cb();
+			}));
+	});
+
+	it('should only pass through files when they change', function (cb) {
+		changed.shas[path.join(__dirname, 'fixture/different/src/a')] = 'not matching sha';
+		changed.shas[path.join(__dirname, 'fixture/different/src/b')] = 'e9d71f5ee7c92d6dc9e92ffdad17b8bd49418f98';
+
+		gulp.src('fixture/different/src/*')
+			.pipe(changed())
+			.pipe(concatStream(function (buf) {
+				assert.equal(1, buf.length);
+				assert.equal('a', path.basename(buf[0].path));
+				cb();
+			}));
+	});
+});

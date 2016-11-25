@@ -54,6 +54,8 @@ This is needed to be able to compare the current files with the destination file
 
 Can also be a function returning a destination directory path.
 
+If destination is `null` or `undefined`, only the source file SHA1 history will be used to determine if the file has changed or not. Upon the first run, all files will be treated as changed.
+
 #### options
 
 ##### cwd
