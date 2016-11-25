@@ -58,7 +58,7 @@ Can also be a function returning a destination directory path.
 
 ##### cwd
 
-Type: `string`  
+Type: `string`
 Default: `process.cwd()`
 
 The working directory the folder is relative to.
@@ -82,7 +82,7 @@ gulp.task('jade', () => {
 
 ##### hasChanged
 
-Type: `function`  
+Type: `function`
 Default: `changed.compareLastModifiedTime`
 
 Function that determines whether the source file is different from the destination file.
@@ -110,6 +110,9 @@ You can also supply a custom comparator function which will receive the followin
 - `sourceFile` *([vinyl file object](https://github.com/wearefractal/vinyl#file))*
 - `destPath` *(string)* - destination for `sourceFile` as an absolute path
 
+## In Place Change Monitoring
+
+If you are looking to process source files in place without build output (formatting, linting, etc), have a look at [gulp-changed-in-place](https://github.com/alexgorbatchev/gulp-changed-in-place).
 
 ## In-place change monitoring
 
