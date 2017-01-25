@@ -25,30 +25,30 @@ $ npm install --save-dev gulp-changed
 ```js
 const gulp = require('gulp');
 const changed = require('gulp-changed');
-const ngAnnotate = require('gulp-ng-annotate'); // just as an example
+const ngAnnotate = require('gulp-ng-annotate'); // Just as an example
 
 const SRC = 'src/*.js';
 const DEST = 'dist';
 
-gulp.task('default', () => {
-	return gulp.src(SRC)
+gulp.task('default', () =>
+	gulp.src(SRC)
 		.pipe(changed(DEST))
-		// ngAnnotate will only get the files that
+		// `ngAnnotate` will only get the files that
 		// changed since the last time it was run
 		.pipe(ngAnnotate())
-		.pipe(gulp.dest(DEST));
-});
+		.pipe(gulp.dest(DEST))
+);
 ```
 
 ## API
 
-### changed(destination, options)
+### changed(destination, [options])
 
 #### destination
 
-Type: `string`, `function`
+Type: `string` `Function`
 
-The destination directory. Same as you put into `gulp.dest()`.
+Destination directory. Same as you put into `gulp.dest()`.
 
 This is needed to be able to compare the current files with the destination files.
 
@@ -56,12 +56,14 @@ Can also be a function returning a destination directory path.
 
 #### options
 
+Type: `Object`
+
 ##### cwd
 
-Type: `string`  
+Type: `string`<br>
 Default: `process.cwd()`
 
-The working directory the folder is relative to.
+Working directory the folder is relative to.
 
 ##### extension
 
@@ -72,17 +74,17 @@ Extension of the destination files.
 Useful if it differs from the original, like in the example below:
 
 ```js
-gulp.task('jade', () => {
-	return gulp.src('src/**/*.jade')
+gulp.task('jade', () =>
+	gulp.src('src/**/*.jade')
 		.pipe(changed('app', {extension: '.html'}))
 		.pipe(jade())
 		.pipe(gulp.dest('app'))
-});
+);
 ```
 
 ##### hasChanged
 
-Type: `function`  
+Type: `Function`<br>
 Default: `changed.compareLastModifiedTime`
 
 Function that determines whether the source file is different from the destination file.
@@ -95,20 +97,20 @@ Function that determines whether the source file is different from the destinati
 ###### Example
 
 ```js
-gulp.task('jade', () => {
-	return gulp.src('src/**/*.jade')
+gulp.task('jade', () =>
+	gulp.src('src/**/*.jade')
 		.pipe(changed('app', {hasChanged: changed.compareSha1Digest}))
 		.pipe(jade())
-		.pipe(gulp.dest('app'));
-});
+		.pipe(gulp.dest('app'))
+);
 ```
 
 You can also supply a custom comparator function which will receive the following arguments:
 
-- `stream` *([transform object stream](https://github.com/rvagg/through2#transformfunction))* - should be used to queue `sourceFile` if it passes some comparison
-- `callback` *(function)* - should be called when done
-- `sourceFile` *([vinyl file object](https://github.com/wearefractal/vinyl#file))*
-- `destPath` *(string)* - destination for `sourceFile` as an absolute path
+- `stream` *([transform object stream](https://github.com/rvagg/through2#transformfunction))* - Should be used to queue `sourceFile` if it passes some comparison
+- `callback` *(function)* - Should be called when done
+- `sourceFile` *([Vinyl file object](https://github.com/wearefractal/vinyl#file))*
+- `destPath` *(string)* - Destination for `sourceFile` as an absolute path
 
 
 ## In-place change monitoring
@@ -118,4 +120,4 @@ If you're looking to process source files in-place without any build output (for
 
 ## License
 
-MIT © [Sindre Sorhus](http://sindresorhus.com)
+MIT © [Sindre Sorhus](https://sindresorhus.com)

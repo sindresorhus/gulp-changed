@@ -1,11 +1,11 @@
 'use strict';
-var fs = require('fs');
-var path = require('path');
-var crypto = require('crypto');
-var gutil = require('gulp-util');
-var through = require('through2');
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+const gutil = require('gulp-util');
+const through = require('through2');
 
-// ignore missing file error
+// Ignore missing file error
 function fsOperationFailed(stream, sourceFile, err) {
 	if (err) {
 		if (err.code !== 'ENOENT') {
@@ -20,13 +20,11 @@ function fsOperationFailed(stream, sourceFile, err) {
 	return err;
 }
 
-function sha1(buf) {
-	return crypto.createHash('sha1').update(buf).digest('hex');
-}
+const sha1 = buf => crypto.createHash('sha1').update(buf).digest('hex');
 
-// only push through files changed more recently than the destination files
+// Only push through files changed more recently than the destination files
 function compareLastModifiedTime(stream, cb, sourceFile, targetPath) {
-	fs.stat(targetPath, function (err, targetStat) {
+	fs.stat(targetPath, (err, targetStat) => {
 		if (!fsOperationFailed(stream, sourceFile, err)) {
 			if (sourceFile.stat && sourceFile.stat.mtime > targetStat.mtime) {
 				stream.push(sourceFile);
@@ -37,17 +35,17 @@ function compareLastModifiedTime(stream, cb, sourceFile, targetPath) {
 	});
 }
 
-// only push through files with different SHA1 than the destination files
+// Only push through files with different SHA1 than the destination files
 function compareSha1Digest(stream, cb, sourceFile, targetPath) {
-	fs.readFile(targetPath, function (err, targetData) {
+	fs.readFile(targetPath, (err, targetData) => {
 		if (sourceFile.isNull()) {
 			cb(null, sourceFile);
 			return;
 		}
 
 		if (!fsOperationFailed(stream, sourceFile, err)) {
-			var sourceDigest = sha1(sourceFile.contents);
-			var targetDigest = sha1(targetData);
+			const sourceDigest = sha1(sourceFile.contents);
+			const targetDigest = sha1(targetData);
 
 			if (sourceDigest !== targetDigest) {
 				stream.push(sourceFile);
@@ -58,18 +56,19 @@ function compareSha1Digest(stream, cb, sourceFile, targetPath) {
 	});
 }
 
-module.exports = function (dest, opts) {
-	opts = opts || {};
-	opts.cwd = opts.cwd || process.cwd();
-	opts.hasChanged = opts.hasChanged || compareLastModifiedTime;
+module.exports = (dest, opts) => {
+	opts = Object.assign({
+		cwd: process.cwd(),
+		hasChanged: compareLastModifiedTime
+	}, opts);
 
 	if (!dest) {
 		throw new gutil.PluginError('gulp-changed', '`dest` required');
 	}
 
 	return through.obj(function (file, enc, cb) {
-		var dest2 = typeof dest === 'function' ? dest(file) : dest;
-		var newPath = path.resolve(opts.cwd, dest2, file.relative);
+		const dest2 = typeof dest === 'function' ? dest(file) : dest;
+		let newPath = path.resolve(opts.cwd, dest2, file.relative);
 
 		if (opts.extension) {
 			newPath = gutil.replaceExtension(newPath, opts.extension);

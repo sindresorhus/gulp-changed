@@ -1,16 +1,17 @@
 'use strict';
-var fs = require('fs');
-var path = require('path');
-var assert = require('assert');
-var concatStream = require('concat-stream');
-var gulp = require('gulp');
-var gutil = require('gulp-util');
-var rimraf = require('rimraf');
-var changed = require('./');
+/* eslint-env mocha */
+const fs = require('fs');
+const path = require('path');
+const assert = require('assert');
+const gulp = require('gulp');
+const gutil = require('gulp-util');
+const del = require('del');
+const getStream = require('get-stream');
+const changed = require('.');
 
 function test(dest, opts) {
-	var desc = 'should only pass through changed files';
-	var extension = '.js';
+	let desc = 'should only pass through changed files';
+	let extension = '.js';
 
 	if (opts && opts.extension) {
 		desc += ' using extension ' + opts.extension;
@@ -21,9 +22,9 @@ function test(dest, opts) {
 		desc += ' using file extension';
 	}
 
-	it(desc, function (cb) {
-		var stream = changed(dest, opts);
-		var files = [];
+	it(desc, cb => {
+		const stream = changed(dest, opts);
+		const files = [];
 
 		if (typeof dest === 'function') {
 			dest = 'tmp';
@@ -31,18 +32,18 @@ function test(dest, opts) {
 
 		try {
 			fs.mkdirSync(dest);
-			fs.writeFileSync(path.join(dest, 'foo' + extension), '');
+			fs.writeFileSync(path.join(dest, `foo${extension}`), '');
 		} catch (err) {}
 
-		stream.on('data', function (file) {
+		stream.on('data', file => {
 			files.push(file);
 			fs.writeFileSync(path.join(dest, file.relative), file);
 		});
 
-		stream.on('end', function () {
+		stream.on('end', () => {
 			assert.equal(files.length, 1);
 			assert.equal(files[0].relative, 'bar.js');
-			rimraf.sync(dest);
+			del.sync(dest);
 			cb();
 		});
 
@@ -69,55 +70,53 @@ function test(dest, opts) {
 	});
 }
 
-describe('compareLastModifiedTime', function () {
-	describe('using relative dest', function () {
+describe('compareLastModifiedTime', () => {
+	describe('using relative dest', () => {
 		test('tmp');
 		test('tmp', {extension: '.coffee'});
 	});
 
-	describe('using absolute dest', function () {
-		var absTmp = path.resolve(__dirname, 'tmp');
+	describe('using absolute dest', () => {
+		const absTmp = path.resolve(__dirname, 'tmp');
 		test(absTmp);
 		test(absTmp, {extension: '.coffee'});
 	});
 
-	describe('dest can be a function', function () {
-		test(function (file) {
-			return 'tmp';
-		});
+	describe('dest can be a function', () => {
+		test(() => 'tmp');
 	});
 });
 
-describe('compareSha1Digest', function () {
-	it('should not pass any files through in identical directories', function (cb) {
-		gulp.src('fixture/identical/src/*')
-			.pipe(changed('fixture/identical/trg', {hasChanged: changed.compareSha1Digest}))
-			.pipe(concatStream(function (buf) {
-				assert.equal(0, buf.length);
-				cb();
-			}));
+describe('compareSha1Digest', () => {
+	it('should not pass any files through in identical directories', () => {
+		const stream = gulp.src('fixture/identical/src/*')
+			.pipe(changed('fixture/identical/trg', {hasChanged: changed.compareSha1Digest}));
+
+		return getStream.array(stream).then(files => {
+			assert.equal(files.length, 0);
+		});
 	});
 
-	it('should only pass through changed files using file extension', function (cb) {
-		gulp.src('fixture/different/src/*')
-			.pipe(changed('fixture/different/trg', {hasChanged: changed.compareSha1Digest}))
-			.pipe(concatStream(function (buf) {
-				assert.equal(1, buf.length);
-				assert.equal('b', path.basename(buf[0].path));
-				cb();
-			}));
+	it('should only pass through changed files using file extension', () => {
+		const stream = gulp.src('fixture/different/src/*')
+			.pipe(changed('fixture/different/trg', {hasChanged: changed.compareSha1Digest}));
+
+		return getStream.array(stream).then(files => {
+			assert.equal(files.length, 1);
+			assert.equal(path.basename(files[0].path), 'b');
+		});
 	});
 
-	it('should only pass through changed files using extension .coffee', function (cb) {
-		gulp.src('fixture/different.ext/src/*')
+	it('should only pass through changed files using extension .coffee', () => {
+		const stream = gulp.src('fixture/different.ext/src/*')
 			.pipe(changed('fixture/different.ext/trg', {
 				hasChanged: changed.compareSha1Digest,
 				extension: '.coffee'
-			}))
-			.pipe(concatStream(function (buf) {
-				assert.equal(1, buf.length);
-				assert.equal('b.typescript', path.basename(buf[0].path));
-				cb();
 			}));
+
+		return getStream.array(stream).then(files => {
+			assert.equal(files.length, 1);
+			assert.equal(path.basename(files[0].path), 'b.typescript');
+		});
 	});
 });

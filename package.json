@@ -7,27 +7,27 @@
   "author": {
     "name": "Sindre Sorhus",
     "email": "sindresorhus@gmail.com",
-    "url": "http://sindresorhus.com"
+    "url": "sindresorhus.com"
   },
   "contributors": [
     {
       "name": "Alex Gorbatchev",
-      "url": "https://github.com/alexgorbatchev"
+      "url": "github.com/alexgorbatchev"
     },
     {
       "name": "Bo-Yi Wu",
-      "url": "https://github.com/appleboy"
+      "url": "github.com/appleboy"
     },
     {
       "name": "Milan Gardian",
-      "url": "https://github.com/milang"
+      "url": "github.com/milang"
     }
   ],
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=4"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "xo && mocha"
   },
   "files": [
     "index.js"
@@ -53,9 +53,10 @@
     "through2": "^2.0.0"
   },
   "devDependencies": {
-    "concat-stream": "^1.4.6",
+    "del": "^2.2.2",
+    "get-stream": "^3.0.0",
     "gulp": "^3.0.0",
-    "mocha": "*",
-    "rimraf": "^2.2.6"
+    "mocha": "^3.2.0",
+    "xo": "*"
   }
 }
