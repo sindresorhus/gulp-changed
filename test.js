@@ -107,6 +107,21 @@ describe('compareSha1Digest', () => {
 		});
 	});
 
+	it('should only pass through changed files using transformPath', () => {
+		const stream = gulp.src('fixture/different.transformPath/src/*')
+			.pipe(changed('fixture/different.transformPath/trg', {
+				hasChanged: changed.compareSha1Digest,
+				transformPath: newPath => {
+					const pathParsed = path.parse(newPath);
+					return path.join(pathParsed.dir, 'c', pathParsed.base);
+				}}));
+
+		return getStream.array(stream).then(files => {
+			assert.equal(files.length, 1);
+			assert.equal(path.basename(files[0].path), 'b');
+		});
+	});
+
 	it('should only pass through changed files using extension .coffee', () => {
 		const stream = gulp.src('fixture/different.ext/src/*')
 			.pipe(changed('fixture/different.ext/trg', {
