@@ -66,7 +66,7 @@ module.exports = (dest, opts) => {
 		throw new gutil.PluginError('gulp-changed', '`dest` required');
 	}
 
-	if (opts.transform && typeof opts.transform !== 'function') {
+	if (typeof opts.transform !== 'function') {
 		throw new gutil.PluginError('gulp-changed',
 			'`opts.transform` needs to be a function');
 	}
