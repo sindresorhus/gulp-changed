@@ -112,7 +112,7 @@ You can also supply a custom comparator function which will receive the followin
 - `sourceFile` *([Vinyl file object](https://github.com/wearefractal/vinyl#file))*
 - `destPath` *(string)* - Destination for `sourceFile` as an absolute path
 
-##### transform
+##### transformPath
 
 Type: `Function`
 
@@ -124,7 +124,7 @@ Useful if you rename your file later on, like in the example below:
 ```js
 gulp.task('marked', () =>
 	gulp.src('src/content/about.md')
-		.pipe(changed('app', {transform: path => path.replace('about.md', 'about/index.html')}))
+		.pipe(changed('app', {transformPath: path => path.replace('about.md', 'about/index.html')}))
 		.pipe(marked())
 		.pipe(rename(path => path.replace('about.md', 'about/index.html')))
 		.pipe(gulp.dest('app'))
