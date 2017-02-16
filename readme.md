@@ -116,8 +116,7 @@ You can also supply a custom comparator function which will receive the followin
 
 Type: `Function`
 
-Function to transform the path to the destination file.
-Should return the absolute path to the (renamed) destination file.
+Function to transform the path to the destination file. Should return the absolute path to the (renamed) destination file.
 
 Useful if you rename your file later on, like in the example below:
 

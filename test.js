@@ -114,7 +114,8 @@ describe('compareSha1Digest', () => {
 				transformPath: newPath => {
 					const pathParsed = path.parse(newPath);
 					return path.join(pathParsed.dir, 'c', pathParsed.base);
-				}}));
+				}
+			}));
 
 		return getStream.array(stream).then(files => {
 			assert.equal(files.length, 1);
