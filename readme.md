@@ -118,14 +118,14 @@ Type: `Function`
 
 Function to transform the path to the destination file. Should return the absolute path to the (renamed) destination file.
 
-Useful if you rename your file later on, like in the example below:
+Useful if you rename your file later on, like in the below example:
 
 ```js
 gulp.task('marked', () =>
 	gulp.src('src/content/about.md')
-		.pipe(changed('dist', {transformPath: newPath => path.join(path.parse(newPath).dir, path.parse(newPath).name, 'index.html')}))
+		.pipe(changed('dist', {transformPath: path.join(path.dirname(newPath), path.basename(newPath, '.md'), 'index.html')}))
 		.pipe(marked())
-		.pipe(rename(newPath => path.join(path.parse(newPath).dir, path.parse(newPath).name, 'index.html')))
+		.pipe(rename(path.join(path.dirname(newPath), path.basename(newPath, '.md'), 'index.html'))))
 		.pipe(gulp.dest('dist'))
 );
 ```
