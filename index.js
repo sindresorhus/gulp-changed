@@ -66,12 +66,24 @@ module.exports = (dest, opts) => {
 		throw new gutil.PluginError('gulp-changed', '`dest` required');
 	}
 
+	if (opts.transformPath !== undefined && typeof opts.transformPath !== 'function') {
+		throw new gutil.PluginError('gulp-changed', '`opts.transformPath` needs to be a function');
+	}
+
 	return through.obj(function (file, enc, cb) {
 		const dest2 = typeof dest === 'function' ? dest(file) : dest;
 		let newPath = path.resolve(opts.cwd, dest2, file.relative);
 
 		if (opts.extension) {
 			newPath = gutil.replaceExtension(newPath, opts.extension);
+		}
+
+		if (opts.transformPath) {
+			newPath = opts.transformPath(newPath);
+
+			if (typeof newPath !== 'string') {
+				throw new gutil.PluginError('gulp-changed', '`opts.transformPath` needs to return a string');
+			}
 		}
 
 		opts.hasChanged(this, cb, file, newPath);

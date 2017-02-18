@@ -112,6 +112,23 @@ You can also supply a custom comparator function which will receive the followin
 - `sourceFile` *([Vinyl file object](https://github.com/wearefractal/vinyl#file))*
 - `destPath` *(string)* - Destination for `sourceFile` as an absolute path
 
+##### transformPath
+
+Type: `Function`
+
+Function to transform the path to the destination file. Should return the absolute path to the (renamed) destination file.
+
+Useful if you rename your file later on, like in the below example:
+
+```js
+gulp.task('marked', () =>
+	gulp.src('src/content/about.md')
+		.pipe(changed('dist', {transformPath: newPath => path.join(path.dirname(newPath), path.basename(newPath, '.md'), 'index.html')}))
+		.pipe(marked())
+		.pipe(rename(newPath => path.join(path.dirname(newPath), path.basename(newPath, '.md'), 'index.html'))))
+		.pipe(gulp.dest('dist'))
+);
+```
 
 ## In-place change monitoring
 
