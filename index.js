@@ -79,7 +79,11 @@ module.exports = (dest, opts) => {
 		}
 
 		if (opts.transformPath) {
-			newPath = opts.transformPath(newPath) || '';
+			newPath = opts.transformPath(newPath);
+
+			if (typeof newPath !== 'string') {
+				throw new gutil.PluginError('gulp-changed', '`opts.transformPath` needs to return a string');
+			}
 		}
 
 		opts.hasChanged(this, cb, file, newPath);
