@@ -123,9 +123,9 @@ Useful if you rename your file later on, like in the below example:
 ```js
 gulp.task('marked', () =>
 	gulp.src('src/content/about.md')
-		.pipe(changed('dist', {transformPath: path.join(path.dirname(newPath), path.basename(newPath, '.md'), 'index.html')}))
+		.pipe(changed('dist', {transformPath: (newPath) => path.join(path.dirname(newPath), path.basename(newPath, '.md'), 'index.html')}))
 		.pipe(marked())
-		.pipe(rename(path.join(path.dirname(newPath), path.basename(newPath, '.md'), 'index.html'))))
+		.pipe(rename((newPath) => path.join(path.dirname(newPath), path.basename(newPath, '.md'), 'index.html'))))
 		.pipe(gulp.dest('dist'))
 );
 ```
