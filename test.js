@@ -51,7 +51,7 @@ function test(dest, opts) {
 			cwd: __dirname,
 			base: __dirname,
 			path: 'foo.js',
-			contents: new Buffer(''),
+			contents: Buffer.from(''),
 			stat: {
 				mtime: fs.statSync(path.join(dest, 'foo' + extension))
 			}
@@ -60,7 +60,7 @@ function test(dest, opts) {
 		stream.write(new gutil.File({
 			base: __dirname,
 			path: 'bar.js',
-			contents: new Buffer(''),
+			contents: Buffer.from(''),
 			stat: {
 				mtime: new Date()
 			}
