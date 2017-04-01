@@ -24,32 +24,34 @@ const sha1 = buf => crypto.createHash('sha1').update(buf).digest('hex');
 
 // Only push through files changed more recently than the destination files
 function compareLastModifiedTime(stream, cb, sourceFile, targetPath) {
-	stat(targetPath).then(targetStat => {
-		if (sourceFile.stat && sourceFile.stat.mtime > targetStat.mtime) {
-			stream.push(sourceFile);
-		}
-	}).catch(err => {
-		fsOperationFailed(stream, sourceFile, err);
-	}).then(() => cb());
+	stat(targetPath)
+		.then(targetStat => {
+			if (sourceFile.stat && sourceFile.stat.mtime > targetStat.mtime) {
+				stream.push(sourceFile);
+			}
+		})
+		.catch(err => fsOperationFailed(stream, sourceFile, err))
+		.then(() => cb());
 }
 
 // Only push through files with different SHA1 than the destination files
 function compareSha1Digest(stream, cb, sourceFile, targetPath) {
-	readFile(targetPath).then(targetData => {
-		if (sourceFile.isNull()) {
-			cb(null, sourceFile);
-			return;
-		}
+	readFile(targetPath)
+		.then(targetData => {
+			if (sourceFile.isNull()) {
+				cb(null, sourceFile);
+				return;
+			}
 
-		const sourceDigest = sha1(sourceFile.contents);
-		const targetDigest = sha1(targetData);
+			const sourceDigest = sha1(sourceFile.contents);
+			const targetDigest = sha1(targetData);
 
-		if (sourceDigest !== targetDigest) {
-			stream.push(sourceFile);
-		}
-	}).catch(err => {
-		fsOperationFailed(stream, sourceFile, err);
-	}).then(() => cb());
+			if (sourceDigest !== targetDigest) {
+				stream.push(sourceFile);
+			}
+		})
+		.catch(err => fsOperationFailed(stream, sourceFile, err))
+		.then(() => cb());
 }
 
 module.exports = (dest, opts) => {
