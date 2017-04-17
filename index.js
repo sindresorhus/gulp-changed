@@ -38,6 +38,7 @@ function compareSha1Digest(stream, sourceFile, targetPath) {
 	return readFile(targetPath)
 		.then(targetData => {
 			if (sourceFile.isNull()) {
+				stream.push(sourceFile);
 				return;
 			}
 
