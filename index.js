@@ -29,8 +29,7 @@ function compareLastModifiedTime(stream, sourceFile, targetPath) {
 			if (sourceFile.stat && sourceFile.stat.mtime > targetStat.mtime) {
 				stream.push(sourceFile);
 			}
-		})
-		.catch(err => fsOperationFailed(stream, sourceFile, err));
+		});
 }
 
 // Only push through files with different SHA1 than the destination files
@@ -48,8 +47,7 @@ function compareSha1Digest(stream, sourceFile, targetPath) {
 			if (sourceDigest !== targetDigest) {
 				stream.push(sourceFile);
 			}
-		})
-		.catch(err => fsOperationFailed(stream, sourceFile, err));
+		});
 }
 
 module.exports = (dest, opts) => {
@@ -82,7 +80,10 @@ module.exports = (dest, opts) => {
 			}
 		}
 
-		opts.hasChanged(this, file, newPath).then(() => cb());
+		opts
+			.hasChanged(this, file, newPath)
+			.catch(err => fsOperationFailed(this, file, err))
+			.then(() => cb());
 	});
 };
 
