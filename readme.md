@@ -105,10 +105,9 @@ gulp.task('jade', () =>
 );
 ```
 
-You can also supply a custom comparator function which will receive the following arguments:
+You can also supply a custom comparator function which will receive the following arguments and should return `Promise`.
 
 - `stream` *([transform object stream](https://github.com/rvagg/through2#transformfunction))* - Should be used to queue `sourceFile` if it passes some comparison
-- `callback` *(function)* - Should be called when done
 - `sourceFile` *([Vinyl file object](https://github.com/wearefractal/vinyl#file))*
 - `destPath` *(string)* - Destination for `sourceFile` as an absolute path
 
