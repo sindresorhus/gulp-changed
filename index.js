@@ -4,56 +4,50 @@ const path = require('path');
 const crypto = require('crypto');
 const gutil = require('gulp-util');
 const through = require('through2');
+const pify = require('pify');
+
+const readFile = pify(fs.readFile);
+const stat = pify(fs.stat);
 
 // Ignore missing file error
 function fsOperationFailed(stream, sourceFile, err) {
-	if (err) {
-		if (err.code !== 'ENOENT') {
-			stream.emit('error', new gutil.PluginError('gulp-changed', err, {
-				fileName: sourceFile.path
-			}));
-		}
-
-		stream.push(sourceFile);
+	if (err.code !== 'ENOENT') {
+		stream.emit('error', new gutil.PluginError('gulp-changed', err, {
+			fileName: sourceFile.path
+		}));
 	}
 
-	return err;
+	stream.push(sourceFile);
 }
 
 const sha1 = buf => crypto.createHash('sha1').update(buf).digest('hex');
 
 // Only push through files changed more recently than the destination files
-function compareLastModifiedTime(stream, cb, sourceFile, targetPath) {
-	fs.stat(targetPath, (err, targetStat) => {
-		if (!fsOperationFailed(stream, sourceFile, err)) {
+function compareLastModifiedTime(stream, sourceFile, targetPath) {
+	return stat(targetPath)
+		.then(targetStat => {
 			if (sourceFile.stat && sourceFile.stat.mtime > targetStat.mtime) {
 				stream.push(sourceFile);
 			}
-		}
-
-		cb();
-	});
+		});
 }
 
 // Only push through files with different SHA1 than the destination files
-function compareSha1Digest(stream, cb, sourceFile, targetPath) {
-	fs.readFile(targetPath, (err, targetData) => {
-		if (sourceFile.isNull()) {
-			cb(null, sourceFile);
-			return;
-		}
+function compareSha1Digest(stream, sourceFile, targetPath) {
+	return readFile(targetPath)
+		.then(targetData => {
+			if (sourceFile.isNull()) {
+				stream.push(sourceFile);
+				return;
+			}
 
-		if (!fsOperationFailed(stream, sourceFile, err)) {
 			const sourceDigest = sha1(sourceFile.contents);
 			const targetDigest = sha1(targetData);
 
 			if (sourceDigest !== targetDigest) {
 				stream.push(sourceFile);
 			}
-		}
-
-		cb();
-	});
+		});
 }
 
 module.exports = (dest, opts) => {
@@ -86,7 +80,10 @@ module.exports = (dest, opts) => {
 			}
 		}
 
-		opts.hasChanged(this, cb, file, newPath);
+		opts
+			.hasChanged(this, file, newPath)
+			.catch(err => fsOperationFailed(this, file, err))
+			.then(() => cb());
 	});
 };
 
