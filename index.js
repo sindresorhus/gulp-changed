@@ -1,7 +1,6 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const crypto = require('crypto');
 const gutil = require('gulp-util');
 const through = require('through2');
 const pify = require('pify');
@@ -20,8 +19,6 @@ function fsOperationFailed(stream, sourceFile, err) {
 	stream.push(sourceFile);
 }
 
-const sha1 = buf => crypto.createHash('sha1').update(buf).digest('hex');
-
 // Only push through files changed more recently than the destination files
 function compareLastModifiedTime(stream, sourceFile, targetPath) {
 	return stat(targetPath)
@@ -32,19 +29,11 @@ function compareLastModifiedTime(stream, sourceFile, targetPath) {
 		});
 }
 
-// Only push through files with different SHA1 than the destination files
+// Only push through files with different content than the destination files
 function compareSha1Digest(stream, sourceFile, targetPath) {
 	return readFile(targetPath)
 		.then(targetData => {
-			if (sourceFile.isNull()) {
-				stream.push(sourceFile);
-				return;
-			}
-
-			const sourceDigest = sha1(sourceFile.contents);
-			const targetDigest = sha1(targetData);
-
-			if (sourceDigest !== targetDigest) {
+			if (sourceFile.isNull() || Buffer.compare(sourceFile.contents, targetData)) {
 				stream.push(sourceFile);
 			}
 		});
