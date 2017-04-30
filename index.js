@@ -33,7 +33,7 @@ function compareLastModifiedTime(stream, sourceFile, targetPath) {
 function compareContent(stream, sourceFile, targetPath) {
 	return readFile(targetPath)
 		.then(targetData => {
-			if (sourceFile.isNull() || !Buffer.equals(sourceFile.contents, targetData)) {
+			if (sourceFile.isNull() || !sourceFile.contents.equals(targetData)) {
 				stream.push(sourceFile);
 			}
 		});
