@@ -30,10 +30,10 @@ function compareLastModifiedTime(stream, sourceFile, targetPath) {
 }
 
 // Only push through files with different content than the destination files
-function compareSha1Digest(stream, sourceFile, targetPath) {
+function compareContent(stream, sourceFile, targetPath) {
 	return readFile(targetPath)
 		.then(targetData => {
-			if (sourceFile.isNull() || Buffer.compare(sourceFile.contents, targetData)) {
+			if (sourceFile.isNull() || !Buffer.equals(sourceFile.contents, targetData)) {
 				stream.push(sourceFile);
 			}
 		});
@@ -77,4 +77,5 @@ module.exports = (dest, opts) => {
 };
 
 module.exports.compareLastModifiedTime = compareLastModifiedTime;
-module.exports.compareSha1Digest = compareSha1Digest;
+module.exports.compareContent = compareContent;
+module.exports.compareSha1Digest = compareContent;
