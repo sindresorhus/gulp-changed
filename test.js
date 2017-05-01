@@ -87,10 +87,10 @@ describe('compareLastModifiedTime', () => {
 	});
 });
 
-describe('compareContent', () => {
+describe('compareContents', () => {
 	it('should not pass any files through in identical directories', () => {
 		const stream = gulp.src('fixture/identical/src/*')
-			.pipe(changed('fixture/identical/trg', {hasChanged: changed.compareContent}));
+			.pipe(changed('fixture/identical/trg', {hasChanged: changed.compareContents}));
 
 		return getStream.array(stream).then(files => {
 			assert.equal(files.length, 0);
@@ -99,7 +99,7 @@ describe('compareContent', () => {
 
 	it('should only pass through changed files using file extension', () => {
 		const stream = gulp.src('fixture/different/src/*')
-			.pipe(changed('fixture/different/trg', {hasChanged: changed.compareContent}));
+			.pipe(changed('fixture/different/trg', {hasChanged: changed.compareContents}));
 
 		return getStream.array(stream).then(files => {
 			assert.equal(files.length, 1);
@@ -110,7 +110,7 @@ describe('compareContent', () => {
 	it('should only pass through changed files using transformPath', () => {
 		const stream = gulp.src('fixture/different.transformPath/src/*')
 			.pipe(changed('fixture/different.transformPath/trg', {
-				hasChanged: changed.compareContent,
+				hasChanged: changed.compareContents,
 				transformPath: newPath => {
 					const pathParsed = path.parse(newPath);
 					return path.join(pathParsed.dir, 'c', pathParsed.base);
@@ -126,7 +126,7 @@ describe('compareContent', () => {
 	it('should only pass through changed files using extension .coffee', () => {
 		const stream = gulp.src('fixture/different.ext/src/*')
 			.pipe(changed('fixture/different.ext/trg', {
-				hasChanged: changed.compareContent,
+				hasChanged: changed.compareContents,
 				extension: '.coffee'
 			}));
 
@@ -138,7 +138,7 @@ describe('compareContent', () => {
 });
 
 describe('compareSha1Digest', () => {
-	it('should be an alias for compareContent', () => {
-		assert.equal(changed.compareContent, changed.compareSha1Digest);
+	it('should be an alias for compareContents', () => {
+		assert.equal(changed.compareContents, changed.compareSha1Digest);
 	});
 });

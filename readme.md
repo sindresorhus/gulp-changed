@@ -92,7 +92,7 @@ Function that determines whether the source file is different from the destinati
 ###### Built-in comparators
 
 - `changed.compareLastModifiedTime`
-- `changed.compareContent`
+- `changed.compareContents`
 - `changed.compareSha1Digest` (Deprecated)
 
 ###### Example
