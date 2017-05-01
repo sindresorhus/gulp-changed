@@ -31,9 +31,15 @@ function compareLastModifiedTime(stream, sourceFile, targetPath) {
 
 // Only push through files with different contents than the destination files
 function compareContents(stream, sourceFile, targetPath) {
-	return readFile(targetPath)
+	return stat(targetPath)
+		.then(targetStat => {
+			if (!targetStat.isFile()) {
+				return;
+			}
+			return readFile(targetPath);
+		})
 		.then(targetData => {
-			if (sourceFile.isNull() || !sourceFile.contents.equals(targetData)) {
+			if (sourceFile.isNull() || (targetData && !sourceFile.contents.equals(targetData))) {
 				stream.push(sourceFile);
 			}
 		});
