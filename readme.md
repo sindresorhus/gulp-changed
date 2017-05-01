@@ -92,14 +92,15 @@ Function that determines whether the source file is different from the destinati
 ###### Built-in comparators
 
 - `changed.compareLastModifiedTime`
-- `changed.compareSha1Digest`
+- `changed.compareContents`
+- `changed.compareSha1Digest` (Deprecated)
 
 ###### Example
 
 ```js
 gulp.task('jade', () =>
 	gulp.src('src/**/*.jade')
-		.pipe(changed('app', {hasChanged: changed.compareSha1Digest}))
+		.pipe(changed('app', {hasChanged: changed.compareContent}))
 		.pipe(jade())
 		.pipe(gulp.dest('app'))
 );
