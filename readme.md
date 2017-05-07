@@ -100,7 +100,7 @@ Function that determines whether the source file is different from the destinati
 ```js
 gulp.task('jade', () =>
 	gulp.src('src/**/*.jade')
-		.pipe(changed('app', {hasChanged: changed.compareContent}))
+		.pipe(changed('app', {hasChanged: changed.compareContents}))
 		.pipe(jade())
 		.pipe(gulp.dest('app'))
 );
