@@ -57,9 +57,17 @@ module.exports = (dest, opts) => {
 		const dest2 = typeof dest === 'function' ? dest(file) : dest;
 		let newPath = path.resolve(opts.cwd, dest2, file.relative);
 
-		if (opts.extension) {
-			newPath = gutil.replaceExtension(newPath, opts.extension);
-		}
+        if (opts.extension) {
+            if(typeof opts.extension === "string"){ //replace all
+                newPath = gutil.replaceExtension(newPath, opts.extension);
+            }else{
+                for (var key in opts.extension){
+                    if(path.extname(newPath) === key){
+                        newPath = gutil.replaceExtension(newPath, opts.extension[key]);
+                    }
+                }
+            }
+        }
 
 		if (opts.transformPath) {
 			newPath = opts.transformPath(newPath);
