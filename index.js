@@ -76,6 +76,7 @@ module.exports = (dest, opts) => {
 	});
 };
 
+module.exports.fsOperationFailed = fsOperationFailed;
 module.exports.compareLastModifiedTime = compareLastModifiedTime;
 module.exports.compareContents = compareContents;
 module.exports.compareSha1Digest = compareContents;
