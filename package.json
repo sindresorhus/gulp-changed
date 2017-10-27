@@ -50,14 +50,14 @@
   ],
   "dependencies": {
     "gulp-util": "^3.0.0",
-    "pify": "^2.3.0",
+    "pify": "^3.0.0",
     "through2": "^2.0.0"
   },
   "devDependencies": {
-    "del": "^2.2.2",
+    "del": "^3.0.0",
     "get-stream": "^3.0.0",
     "gulp": "^3.0.0",
-    "mocha": "^3.2.0",
+    "mocha": "^4.0.1",
     "xo": "*"
   }
 }
