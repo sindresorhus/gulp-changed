@@ -27,7 +27,7 @@
 		"node": ">=4"
 	},
 	"scripts": {
-		"test": "xo && mocha"
+		"test": "xo && ava"
 	},
 	"files": [
 		"index.js"
@@ -50,14 +50,18 @@
 	],
 	"dependencies": {
 		"gulp-util": "^3.0.0",
+		"make-dir": "^1.1.0",
 		"pify": "^3.0.0",
-		"through2": "^2.0.0"
+		"through2": "^2.0.0",
+		"touch": "^3.1.0"
 	},
 	"devDependencies": {
+		"ava": "^0.23.0",
+		"chalk": "^2.3.0",
 		"del": "^3.0.0",
+		"figures": "^2.0.0",
 		"get-stream": "^3.0.0",
 		"gulp": "^3.0.0",
-		"mocha": "^4.0.1",
 		"xo": "*"
 	}
 }
