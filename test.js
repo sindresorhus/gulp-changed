@@ -1,15 +1,15 @@
-const path = require('path');
-const fs = require('fs');
-const touch = require('touch');
-const makeDir = require('make-dir');
-const test = require('ava');
-const gulp = require('gulp');
-const gutil = require('gulp-util');
-const del = require('del');
-const getStream = require('get-stream');
-const figures = require('figures');
-const chalk = require('chalk');
-const changed = require('.');
+import path from 'path';
+import fs from 'fs';
+import touch from 'touch';
+import makeDir from 'make-dir';
+import test from 'ava';
+import gulp from 'gulp';
+import gutil from 'gulp-util';
+import del from 'del';
+import getStream from 'get-stream';
+import figures from 'figures';
+import chalk from 'chalk';
+import changed from '.';
 
 const pointer = chalk.gray.dim(figures.pointerSmall);
 
