@@ -1,39 +1,31 @@
-'use strict';
-/* eslint-env mocha */
-const fs = require('fs');
-const path = require('path');
-const assert = require('assert');
-const gulp = require('gulp');
-const gutil = require('gulp-util');
-const del = require('del');
-const getStream = require('get-stream');
-const changed = require('.');
+import path from 'path';
+import fs from 'fs';
+import touch from 'touch';
+import makeDir from 'make-dir';
+import test from 'ava';
+import gulp from 'gulp';
+import gutil from 'gulp-util';
+import del from 'del';
+import getStream from 'get-stream';
+import figures from 'figures';
+import chalk from 'chalk';
+import changed from '.';
 
-function test(dest, opts) {
-	let desc = 'should only pass through changed files';
-	let extension = '.js';
+const pointer = chalk.gray.dim(figures.pointerSmall);
 
-	if (opts && opts.extension) {
-		desc += ' using extension ' + opts.extension;
-		extension = opts.extension;
-	} else if (/^\//.test(dest)) {
-		desc += ' with a absolute path';
-	} else {
-		desc += ' using file extension';
-	}
-
-	it(desc, cb => {
+const macro = (t, opts) => {
+	return new Promise(async resolve => {
+		let dest = opts.dest;
+		const extension = opts.extension || '.js';
 		const stream = changed(dest, opts);
 		const files = [];
 
 		if (typeof dest === 'function') {
-			dest = 'tmp';
+			dest = dest();
 		}
 
-		try {
-			fs.mkdirSync(dest);
-			fs.writeFileSync(path.join(dest, `foo${extension}`), '');
-		} catch (err) {}
+		await makeDir(dest);
+		await touch(path.join(dest, `foo${extension}`));
 
 		stream.on('data', file => {
 			files.push(file);
@@ -41,10 +33,10 @@ function test(dest, opts) {
 		});
 
 		stream.on('end', () => {
-			assert.equal(files.length, 1);
-			assert.equal(files[0].relative, 'bar.js');
+			t.is(files.length, 1);
+			t.is(files[0].relative, 'bar.js');
 			del.sync(dest);
-			cb();
+			return resolve();
 		});
 
 		stream.write(new gutil.File({
@@ -68,77 +60,69 @@ function test(dest, opts) {
 
 		stream.end();
 	});
-}
+};
 
-describe('compareLastModifiedTime', () => {
-	describe('using relative dest', () => {
-		test('tmp');
-		test('tmp', {extension: '.coffee'});
-	});
+macro.title = (providedTitle, opts) => {
+	let desc = 'should only pass through changed files';
 
-	describe('using absolute dest', () => {
-		const absTmp = path.resolve(__dirname, 'tmp');
-		test(absTmp);
-		test(absTmp, {extension: '.coffee'});
-	});
+	if (opts && opts.extension) {
+		desc += ' using extension ' + opts.extension;
+	} else if (opts.absolute) {
+		desc += ' with a absolute path';
+	} else {
+		desc += ' using file extension';
+	}
+	return [providedTitle, desc].join(` ${pointer} `);
+};
 
-	describe('dest can be a function', () => {
-		test(() => 'tmp');
-	});
+test.serial(`compareLastModifiedTime ${pointer} using relative dest`, macro, {dest: 'tmp', absolute: true});
+test.serial(`compareLastModifiedTime ${pointer} using relative dest`, macro, {dest: 'tmp', absolute: true, extension: '.coffee'});
+test.serial(`compareLastModifiedTime ${pointer} dest can be a function`, macro, {dest: () => 'tmp'});
+
+test(`compareContents ${pointer} should not pass any files through in identical directories`, async t => {
+	const stream = gulp.src('fixture/identical/src/*')
+		.pipe(changed('fixture/identical/trg', {hasChanged: changed.compareContents}));
+
+	const files = await getStream.array(stream);
+	t.is(files.length, 0);
 });
 
-describe('compareContents', () => {
-	it('should not pass any files through in identical directories', () => {
-		const stream = gulp.src('fixture/identical/src/*')
-			.pipe(changed('fixture/identical/trg', {hasChanged: changed.compareContents}));
+test(`compareContents ${pointer} should only pass through changed files using file extension`, async t => {
+	const stream = gulp.src('fixture/different/src/*')
+		.pipe(changed('fixture/different/trg', {hasChanged: changed.compareContents}));
 
-		return getStream.array(stream).then(files => {
-			assert.equal(files.length, 0);
-		});
-	});
-
-	it('should only pass through changed files using file extension', () => {
-		const stream = gulp.src('fixture/different/src/*')
-			.pipe(changed('fixture/different/trg', {hasChanged: changed.compareContents}));
-
-		return getStream.array(stream).then(files => {
-			assert.equal(files.length, 1);
-			assert.equal(path.basename(files[0].path), 'b');
-		});
-	});
-
-	it('should only pass through changed files using transformPath', () => {
-		const stream = gulp.src('fixture/different.transformPath/src/*')
-			.pipe(changed('fixture/different.transformPath/trg', {
-				hasChanged: changed.compareContents,
-				transformPath: newPath => {
-					const pathParsed = path.parse(newPath);
-					return path.join(pathParsed.dir, 'c', pathParsed.base);
-				}
-			}));
-
-		return getStream.array(stream).then(files => {
-			assert.equal(files.length, 1);
-			assert.equal(path.basename(files[0].path), 'b');
-		});
-	});
-
-	it('should only pass through changed files using extension .coffee', () => {
-		const stream = gulp.src('fixture/different.ext/src/*')
-			.pipe(changed('fixture/different.ext/trg', {
-				hasChanged: changed.compareContents,
-				extension: '.coffee'
-			}));
-
-		return getStream.array(stream).then(files => {
-			assert.equal(files.length, 1);
-			assert.equal(path.basename(files[0].path), 'b.typescript');
-		});
-	});
+	const files = await getStream.array(stream);
+	t.is(files.length, 1);
+	t.is(path.basename(files[0].path), 'b');
 });
 
-describe('compareSha1Digest', () => {
-	it('should be an alias for compareContents', () => {
-		assert.equal(changed.compareContents, changed.compareSha1Digest);
-	});
+test(`compareContents ${pointer} should only pass through changed files using transformPath`, async t => {
+	const stream = gulp.src('fixture/different.transformPath/src/*')
+		.pipe(changed('fixture/different.transformPath/trg', {
+			hasChanged: changed.compareContents,
+			transformPath: newPath => {
+				const pathParsed = path.parse(newPath);
+				return path.join(pathParsed.dir, 'c', pathParsed.base);
+			}
+		}));
+
+	const files = await getStream.array(stream);
+	t.is(files.length, 1);
+	t.is(path.basename(files[0].path), 'b');
+});
+
+test(`compareContents ${pointer} should only pass through changed files using extension .coffee`, async t => {
+	const stream = gulp.src('fixture/different.ext/src/*')
+		.pipe(changed('fixture/different.ext/trg', {
+			hasChanged: changed.compareContents,
+			extension: '.coffee'
+		}));
+
+	const files = await getStream.array(stream);
+	t.is(files.length, 1);
+	t.is(path.basename(files[0].path), 'b.typescript');
+});
+
+test(`compareSha1Digest ${pointer} should be an alias for compareContents`, t => {
+	t.is(changed.compareContents, changed.compareSha1Digest);
 });
