@@ -1,7 +1,8 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const gutil = require('gulp-util');
+const replaceExt = require('replace-ext');
+const PluginError = require('plugin-error');
 const through = require('through2');
 const pify = require('pify');
 
@@ -11,7 +12,7 @@ const stat = pify(fs.stat);
 // Ignore missing file error
 function fsOperationFailed(stream, sourceFile, err) {
 	if (err.code !== 'ENOENT') {
-		stream.emit('error', new gutil.PluginError('gulp-changed', err, {
+		stream.emit('error', new PluginError('gulp-changed', err, {
 			fileName: sourceFile.path
 		}));
 	}
@@ -46,11 +47,11 @@ module.exports = (dest, opts) => {
 	}, opts);
 
 	if (!dest) {
-		throw new gutil.PluginError('gulp-changed', '`dest` required');
+		throw new PluginError('gulp-changed', '`dest` required');
 	}
 
 	if (opts.transformPath !== undefined && typeof opts.transformPath !== 'function') {
-		throw new gutil.PluginError('gulp-changed', '`opts.transformPath` needs to be a function');
+		throw new PluginError('gulp-changed', '`opts.transformPath` needs to be a function');
 	}
 
 	return through.obj(function (file, enc, cb) {
@@ -58,14 +59,14 @@ module.exports = (dest, opts) => {
 		let newPath = path.resolve(opts.cwd, dest2, file.relative);
 
 		if (opts.extension) {
-			newPath = gutil.replaceExtension(newPath, opts.extension);
+			newPath = replaceExt(newPath, opts.extension);
 		}
 
 		if (opts.transformPath) {
 			newPath = opts.transformPath(newPath);
 
 			if (typeof newPath !== 'string') {
-				throw new gutil.PluginError('gulp-changed', '`opts.transformPath` needs to return a string');
+				throw new PluginError('gulp-changed', '`opts.transformPath` needs to return a string');
 			}
 		}
 
