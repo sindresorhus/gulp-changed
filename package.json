@@ -1,55 +1,55 @@
 {
-	"name": "gulp-changed",
-	"version": "3.1.1",
-	"description": "Only pass through changed files",
-	"license": "MIT",
-	"repository": "sindresorhus/gulp-changed",
-	"author": {
-		"name": "Sindre Sorhus",
-		"email": "sindresorhus@gmail.com",
-		"url": "sindresorhus.com"
-	},
-	"engines": {
-		"node": ">=4"
-	},
-	"scripts": {
-		"test": "xo && ava"
-	},
-	"files": [
-		"index.js"
-	],
-	"keywords": [
-		"gulpplugin",
-		"file",
-		"files",
-		"changed",
-		"newer",
-		"modified",
-		"modification",
-		"updated",
-		"time",
-		"mtime",
-		"stat",
-		"cache",
-		"cached",
-		"passthrough"
-	],
-	"dependencies": {
-		"make-dir": "^1.1.0",
-		"pify": "^3.0.0",
-		"plugin-error": "^0.1.2",
-		"replace-ext": "^1.0.0",
-		"through2": "^2.0.0",
-		"touch": "^3.1.0"
-	},
-	"devDependencies": {
-		"ava": "*",
-		"chalk": "^2.3.0",
-		"del": "^3.0.0",
-		"figures": "^2.0.0",
-		"get-stream": "^3.0.0",
-		"gulp": "^3.0.0",
-		"vinyl": "^2.1.0",
-		"xo": "*"
-	}
+  "name": "gulp-changed",
+  "version": "3.2.0",
+  "description": "Only pass through changed files",
+  "license": "MIT",
+  "repository": "sindresorhus/gulp-changed",
+  "author": {
+    "name": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "sindresorhus.com"
+  },
+  "engines": {
+    "node": ">=4"
+  },
+  "scripts": {
+    "test": "xo && ava"
+  },
+  "files": [
+    "index.js"
+  ],
+  "keywords": [
+    "gulpplugin",
+    "file",
+    "files",
+    "changed",
+    "newer",
+    "modified",
+    "modification",
+    "updated",
+    "time",
+    "mtime",
+    "stat",
+    "cache",
+    "cached",
+    "passthrough"
+  ],
+  "dependencies": {
+    "make-dir": "^1.1.0",
+    "pify": "^3.0.0",
+    "plugin-error": "^0.1.2",
+    "replace-ext": "^1.0.0",
+    "through2": "^2.0.0",
+    "touch": "^3.1.0"
+  },
+  "devDependencies": {
+    "ava": "*",
+    "chalk": "^2.3.0",
+    "del": "^3.0.0",
+    "figures": "^2.0.0",
+    "get-stream": "^3.0.0",
+    "gulp": "^3.0.0",
+    "vinyl": "^2.1.0",
+    "xo": "*"
+  }
 }
