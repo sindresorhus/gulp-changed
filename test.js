@@ -4,7 +4,7 @@ import touch from 'touch';
 import makeDir from 'make-dir';
 import test from 'ava';
 import gulp from 'gulp';
-import gutil from 'gulp-util';
+import Vinyl from 'vinyl';
 import del from 'del';
 import getStream from 'get-stream';
 import figures from 'figures';
@@ -39,7 +39,7 @@ const macro = (t, opts) => {
 			return resolve();
 		});
 
-		stream.write(new gutil.File({
+		stream.write(new Vinyl({
 			cwd: __dirname,
 			base: __dirname,
 			path: 'foo.js',
@@ -49,7 +49,7 @@ const macro = (t, opts) => {
 			}
 		}));
 
-		stream.write(new gutil.File({
+		stream.write(new Vinyl({
 			base: __dirname,
 			path: 'bar.js',
 			contents: Buffer.from(''),
