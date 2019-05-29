@@ -13,8 +13,6 @@ By default it's only able to detect whether files in the stream changed. If you 
 $ npm install --save-dev gulp-changed
 ```
 
-*Support this module by buying this excellent [Node.js course](https://LearnNode.com/friend/AWESOME).*
-
 
 ## Usage
 
@@ -23,26 +21,26 @@ const gulp = require('gulp');
 const changed = require('gulp-changed');
 const ngAnnotate = require('gulp-ng-annotate'); // Just as an example
 
-const SRC = 'src/*.js';
-const DEST = 'dist';
+const SOURCE = 'src/*.js';
+const DESTINATION = 'dist';
 
 gulp.task('default', () =>
-	gulp.src(SRC)
-		.pipe(changed(DEST))
+	gulp.src(SOURCE)
+		.pipe(changed(DESTINATION))
 		// `ngAnnotate` will only get the files that
 		// changed since the last time it was run
 		.pipe(ngAnnotate())
-		.pipe(gulp.dest(DEST))
+		.pipe(gulp.dest(DESTINATION))
 );
 ```
 
 ## API
 
-### changed(destination, [options])
+### changed(destination, options?)
 
 #### destination
 
-Type: `string` `Function`
+Type: `string | Function`
 
 Destination directory. Same as you put into `gulp.dest()`.
 
@@ -52,7 +50,7 @@ Can also be a function returning a destination directory path.
 
 #### options
 
-Type: `Object`
+Type: `object`
 
 ##### cwd
 
@@ -130,8 +128,3 @@ gulp.task('marked', () =>
 ## In-place change monitoring
 
 If you're looking to process source files in-place without any build output (formatting, linting, etc), have a look at [gulp-changed-in-place](https://github.com/alexgorbatchev/gulp-changed-in-place).
-
-
-## License
-
-MIT © [Sindre Sorhus](https://sindresorhus.com)

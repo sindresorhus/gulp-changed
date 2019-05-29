@@ -13,19 +13,26 @@ import changed from '.';
 
 const pointer = chalk.gray.dim(figures.pointerSmall);
 
-const macro = (t, opts) => {
-	return new Promise(async resolve => {
-		let dest = opts.dest;
-		const extension = opts.extension || '.js';
-		const stream = changed(dest, opts);
+const macro = async (t, options) => {
+	// TODO: Use the `p-event` package here instead of the promise constructor
+	// eslint-disable-next-line no-async-promise-executor
+	return new Promise(async (resolve, reject) => {
+		let {dest} = options;
+		const extension = options.extension || '.js';
+		const stream = changed(dest, options);
 		const files = [];
 
 		if (typeof dest === 'function') {
 			dest = dest();
 		}
 
-		await makeDir(dest);
-		await touch(path.join(dest, `foo${extension}`));
+		try {
+			await makeDir(dest);
+			await touch(path.join(dest, `foo${extension}`));
+		} catch (error) {
+			reject(error);
+			return;
+		}
 
 		stream.on('data', file => {
 			files.push(file);
@@ -36,7 +43,7 @@ const macro = (t, opts) => {
 			t.is(files.length, 1);
 			t.is(files[0].relative, 'bar.js');
 			del.sync(dest);
-			return resolve();
+			resolve();
 		});
 
 		stream.write(new Vinyl({
@@ -62,16 +69,17 @@ const macro = (t, opts) => {
 	});
 };
 
-macro.title = (providedTitle, opts) => {
+macro.title = (providedTitle, options) => {
 	let desc = 'should only pass through changed files';
 
-	if (opts && opts.extension) {
-		desc += ' using extension ' + opts.extension;
-	} else if (opts.absolute) {
+	if (options && options.extension) {
+		desc += ' using extension ' + options.extension;
+	} else if (options.absolute) {
 		desc += ' with a absolute path';
 	} else {
 		desc += ' using file extension';
 	}
+
 	return [providedTitle, desc].join(` ${pointer} `);
 };
 

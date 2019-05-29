@@ -1,18 +1,18 @@
 'use strict';
+const {promisify} = require('util');
 const fs = require('fs');
 const path = require('path');
 const replaceExt = require('replace-ext');
 const PluginError = require('plugin-error');
 const through = require('through2');
-const pify = require('pify');
 
-const readFile = pify(fs.readFile);
-const stat = pify(fs.stat);
+const readFile = promisify(fs.readFile);
+const stat = promisify(fs.stat);
 
 // Ignore missing file error
-function fsOperationFailed(stream, sourceFile, err) {
-	if (err.code !== 'ENOENT') {
-		stream.emit('error', new PluginError('gulp-changed', err, {
+function fsOperationFailed(stream, sourceFile, error) {
+	if (error.code !== 'ENOENT') {
+		stream.emit('error', new PluginError('gulp-changed', error, {
 			fileName: sourceFile.path
 		}));
 	}
@@ -21,59 +21,63 @@ function fsOperationFailed(stream, sourceFile, err) {
 }
 
 // Only push through files changed more recently than the destination files
-function compareLastModifiedTime(stream, sourceFile, targetPath) {
-	return stat(targetPath)
-		.then(targetStat => {
-			if (sourceFile.stat && sourceFile.stat.mtime > targetStat.mtime) {
-				stream.push(sourceFile);
-			}
-		});
+async function compareLastModifiedTime(stream, sourceFile, targetPath) {
+	const targetStat = await stat(targetPath);
+
+	if (sourceFile.stat && sourceFile.stat.mtime > targetStat.mtime) {
+		stream.push(sourceFile);
+	}
 }
 
 // Only push through files with different contents than the destination files
-function compareContents(stream, sourceFile, targetPath) {
-	return readFile(targetPath)
-		.then(targetData => {
-			if (sourceFile.isNull() || !sourceFile.contents.equals(targetData)) {
-				stream.push(sourceFile);
-			}
-		});
+async function compareContents(stream, sourceFile, targetPath) {
+	const targetData = await readFile(targetPath);
+
+	if (sourceFile.isNull() || !sourceFile.contents.equals(targetData)) {
+		stream.push(sourceFile);
+	}
 }
 
-module.exports = (dest, opts) => {
-	opts = Object.assign({
+module.exports = (destination, options) => {
+	options = {
 		cwd: process.cwd(),
-		hasChanged: compareLastModifiedTime
-	}, opts);
+		hasChanged: compareLastModifiedTime,
+		...options
+	};
 
-	if (!dest) {
+	if (!destination) {
 		throw new PluginError('gulp-changed', '`dest` required');
 	}
 
-	if (opts.transformPath !== undefined && typeof opts.transformPath !== 'function') {
-		throw new PluginError('gulp-changed', '`opts.transformPath` needs to be a function');
+	if (options.transformPath !== undefined && typeof options.transformPath !== 'function') {
+		throw new PluginError('gulp-changed', '`options.transformPath` needs to be a function');
 	}
 
-	return through.obj(function (file, enc, cb) {
-		const dest2 = typeof dest === 'function' ? dest(file) : dest;
-		let newPath = path.resolve(opts.cwd, dest2, file.relative);
+	return through.obj(function (file, encoding, callback) {
+		const dest2 = typeof destination === 'function' ? destination(file) : destination;
+		let newPath = path.resolve(options.cwd, dest2, file.relative);
 
-		if (opts.extension) {
-			newPath = replaceExt(newPath, opts.extension);
+		if (options.extension) {
+			newPath = replaceExt(newPath, options.extension);
 		}
 
-		if (opts.transformPath) {
-			newPath = opts.transformPath(newPath);
+		if (options.transformPath) {
+			newPath = options.transformPath(newPath);
 
 			if (typeof newPath !== 'string') {
-				throw new PluginError('gulp-changed', '`opts.transformPath` needs to return a string');
+				throw new PluginError('gulp-changed', '`options.transformPath` needs to return a string');
 			}
 		}
 
-		opts
-			.hasChanged(this, file, newPath)
-			.catch(err => fsOperationFailed(this, file, err))
-			.then(() => cb());
+		(async () => {
+			try {
+				await options.hasChanged(this, file, newPath);
+			} catch (error) {
+				fsOperationFailed(this, file, error);
+			}
+
+			callback();
+		})();
 	});
 };
 
