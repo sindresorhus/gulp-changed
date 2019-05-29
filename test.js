@@ -130,7 +130,3 @@ test(`compareContents ${pointer} should only pass through changed files using ex
 	t.is(files.length, 1);
 	t.is(path.basename(files[0].path), 'b.typescript');
 });
-
-test(`compareSha1Digest ${pointer} should be an alias for compareContents`, t => {
-	t.is(changed.compareContents, changed.compareSha1Digest);
-});

@@ -22,9 +22,10 @@ function fsOperationFailed(stream, sourceFile, error) {
 
 // Only push through files changed more recently than the destination files
 async function compareLastModifiedTime(stream, sourceFile, targetPath) {
+	// TODO: Use the `stat` `bigint` option when targeting Node.js 10 and Gulp supports it
 	const targetStat = await stat(targetPath);
 
-	if (sourceFile.stat && sourceFile.stat.mtime > targetStat.mtime) {
+	if (sourceFile.stat && sourceFile.stat.mtimeMs > targetStat.mtimeMs) {
 		stream.push(sourceFile);
 	}
 }
@@ -83,4 +84,4 @@ module.exports = (destination, options) => {
 
 module.exports.compareLastModifiedTime = compareLastModifiedTime;
 module.exports.compareContents = compareContents;
-module.exports.compareSha1Digest = compareContents;
+
