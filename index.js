@@ -25,7 +25,7 @@ async function compareLastModifiedTime(stream, sourceFile, targetPath) {
 	// TODO: Use the `stat` `bigint` option when targeting Node.js 10 and Gulp supports it
 	const targetStat = await stat(targetPath);
 
-	if (sourceFile.stat && sourceFile.stat.mtimeMs > targetStat.mtimeMs) {
+	if (sourceFile.stat && Math.floor(sourceFile.stat.mtimeMs) > Math.floor(targetStat.mtimeMs)) {
 		stream.push(sourceFile);
 	}
 }
