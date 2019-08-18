@@ -24,7 +24,7 @@ const ngAnnotate = require('gulp-ng-annotate'); // Just as an example
 const SOURCE = 'src/*.js';
 const DESTINATION = 'dist';
 
-gulp.task('default', () =>
+exports.default = () => (
 	gulp.src(SOURCE)
 		.pipe(changed(DESTINATION))
 		// `ngAnnotate` will only get the files that
@@ -68,7 +68,7 @@ Extension of the destination files.
 Useful if it differs from the original, like in the example below:
 
 ```js
-gulp.task('jade', () =>
+exports.jade = () => (
 	gulp.src('src/**/*.jade')
 		.pipe(changed('app', {extension: '.html'}))
 		.pipe(jade())
@@ -91,7 +91,7 @@ Function that determines whether the source file is different from the destinati
 ###### Example
 
 ```js
-gulp.task('jade', () =>
+exports.jade = () => (
 	gulp.src('src/**/*.jade')
 		.pipe(changed('app', {hasChanged: changed.compareContents}))
 		.pipe(jade())
@@ -114,7 +114,7 @@ Function to transform the path to the destination file. Should return the absolu
 Useful if you rename your file later on, like in the below example:
 
 ```js
-gulp.task('marked', () =>
+exports.marked = () => (
 	gulp.src('src/content/about.md')
 		.pipe(changed('dist', {transformPath: newPath => path.join(path.dirname(newPath), path.basename(newPath, '.md'), 'index.html')}))
 		.pipe(marked())
