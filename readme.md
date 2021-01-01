@@ -1,4 +1,4 @@
-# gulp-changed [![Build Status](https://travis-ci.org/sindresorhus/gulp-changed.svg?branch=master)](https://travis-ci.org/sindresorhus/gulp-changed)
+# gulp-changed
 
 > Only pass through changed files
 
