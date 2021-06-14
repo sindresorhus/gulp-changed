@@ -25,6 +25,15 @@ async function compareLastModifiedTime(stream, sourceFile, targetPath) {
 	// TODO: Use the `stat` `bigint` option when targeting Node.js 10 and Gulp supports it
 	const targetStat = await stat(targetPath);
 
+	// Precision is lost in the mtime when gulp copies the file from source to target
+	// so we cannot compare the mtimes directly. This has been the case since gulp 4.0.
+	// Now, due to an issue in libuv affecting node 14.17.0 and above (including 16.x -
+	// see https://github.com/nodejs/node/issues/38981) when gulp copies the file to the
+	// target its mtime may be behind the source file by up to 1ms. eg if the source
+	// file has an mtime like 1623259049896.314 the target file mtime can end up as
+	// 1623259049895.999. So to compare safely we use floor on the source and ceil
+	// on the target, which would give us 1623259049896 for both source and target in
+	// that example case.
 	if (sourceFile.stat && Math.floor(sourceFile.stat.mtimeMs) > Math.ceil(targetStat.mtimeMs)) {
 		stream.push(sourceFile);
 	}
