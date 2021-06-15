@@ -36,7 +36,7 @@ const macro = async (t, options) => {
 
 		stream.on('data', file => {
 			files.push(file);
-			fs.writeFileSync(path.join(dest, file.relative), file);
+			fs.writeFileSync(path.join(dest, file.relative), file.contents);
 		});
 
 		stream.on('end', () => {
