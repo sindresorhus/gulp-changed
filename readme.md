@@ -6,20 +6,18 @@ No more wasting precious time on processing unchanged files.
 
 By default it's only able to detect whether files in the stream changed. If you require something more advanced like knowing if imports/dependencies changed, create a custom comparator, or use [another plugin](https://github.com/gulpjs/gulp#incremental-builds).
 
-
 ## Install
 
+```sh
+npm install --save-dev gulp-changed
 ```
-$ npm install --save-dev gulp-changed
-```
-
 
 ## Usage
 
 ```js
-const gulp = require('gulp');
-const changed = require('gulp-changed');
-const ngAnnotate = require('gulp-ng-annotate'); // Just as an example
+import gulp from 'gulp';
+import changed from 'gulp-changed';
+import ngAnnotate from 'gulp-ng-annotate'; // Just as an example
 
 const SOURCE = 'src/*.js';
 const DESTINATION = 'dist';
@@ -54,7 +52,7 @@ Type: `object`
 
 ##### cwd
 
-Type: `string`<br>
+Type: `string`\
 Default: `process.cwd()`
 
 Working directory the folder is relative to.
@@ -68,7 +66,7 @@ Extension of the destination files.
 Useful if it differs from the original, like in the example below:
 
 ```js
-exports.jade = () => (
+export const jade = () => (
 	gulp.src('src/**/*.jade')
 		.pipe(changed('app', {extension: '.html'}))
 		.pipe(jade())
@@ -78,20 +76,22 @@ exports.jade = () => (
 
 ##### hasChanged
 
-Type: `Function`<br>
-Default: `changed.compareLastModifiedTime`
+Type: `Function`\
+Default: `compareLastModifiedTime`
 
 Function that determines whether the source file is different from the destination file.
 
 ###### Built-in comparators
 
-- `changed.compareLastModifiedTime`
-- `changed.compareContents`
+Named imports:
+
+- `compareLastModifiedTime`
+- `compareContents`
 
 ###### Example
 
 ```js
-exports.jade = () => (
+export const jade = () => (
 	gulp.src('src/**/*.jade')
 		.pipe(changed('app', {hasChanged: changed.compareContents}))
 		.pipe(jade())
@@ -114,7 +114,7 @@ Function to transform the path to the destination file. Should return the absolu
 Useful if you rename your file later on, like in the below example:
 
 ```js
-exports.marked = () => (
+export const marked = () => (
 	gulp.src('src/content/about.md')
 		.pipe(changed('dist', {transformPath: newPath => path.join(path.dirname(newPath), path.basename(newPath, '.md'), 'index.html')}))
 		.pipe(marked())
@@ -122,7 +122,6 @@ exports.marked = () => (
 		.pipe(gulp.dest('dist'))
 );
 ```
-
 
 ## In-place change monitoring
 
