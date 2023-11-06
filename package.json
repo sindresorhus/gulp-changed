@@ -39,6 +39,7 @@
 	],
 	"dependencies": {
 		"change-file-extension": "^0.1.0",
+		"gulp-plugin-extras": "^0.3.0",
 		"touch": "^3.1.0"
 	},
 	"devDependencies": {
@@ -48,7 +49,6 @@
 		"figures": "^6.0.1",
 		"get-stream": "^8.0.1",
 		"gulp": "^4.0.2",
-		"gulp-plugin-extras": "^0.3.0",
 		"vinyl": "^3.0.0",
 		"xo": "^0.56.0"
 	},
