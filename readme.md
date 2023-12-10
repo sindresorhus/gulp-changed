@@ -91,7 +91,7 @@ Named imports:
 ###### Example
 
 ```js
-import { compareContents } from 'gulp-changed';
+import {compareContents} from 'gulp-changed';
 
 export const jade = () => (
 	gulp.src('src/**/*.jade')
