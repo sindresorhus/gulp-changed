@@ -91,9 +91,11 @@ Named imports:
 ###### Example
 
 ```js
+import {compareContents} from 'gulp-changed';
+
 export const jade = () => (
 	gulp.src('src/**/*.jade')
-		.pipe(changed('app', {hasChanged: changed.compareContents}))
+		.pipe(changed('app', {hasChanged: compareContents}))
 		.pipe(jade())
 		.pipe(gulp.dest('app'))
 );
