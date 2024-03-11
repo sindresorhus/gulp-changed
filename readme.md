@@ -101,11 +101,12 @@ export const jade = () => (
 );
 ```
 
-You can also supply a custom comparator function which will receive the following arguments and should return `Promise`.
+You can also specify a custom comparator function, which will receive the following arguments:
 
-- `stream` *([transform object stream](https://github.com/rvagg/through2#transformfunction))* - Should be used to queue `sourceFile` if it passes some comparison
 - `sourceFile` *([Vinyl file object](https://github.com/wearefractal/vinyl#file))*
-- `destPath` *(string)* - Destination for `sourceFile` as an absolute path
+- `destinationPath` *(string)* - The destination for `sourceFile` as an absolute path
+
+The function is expected to return `sourceFile | Promise<sourceFile>` if it passes some comparison or `undefined | Promise<undefined>`. [Examples.](https://github.com/sindresorhus/gulp-changed/blob/4e59a0105c8c10c56f9f8cd153c696e005afa64f/index.js#L7-L28)
 
 ##### transformPath
 
@@ -118,9 +119,11 @@ Useful if you rename your file later on, like in the below example:
 ```js
 export const marked = () => (
 	gulp.src('src/content/about.md')
-		.pipe(changed('dist', {transformPath: newPath => path.join(path.dirname(newPath), path.basename(newPath, '.md'), 'index.html')}))
+		.pipe(changed('dist', {
+			transformPath: newPath => path.join(path.dirname(newPath), path.basename(newPath, '.md'), 'index.html')
+		}))
 		.pipe(marked())
-		.pipe(rename(newPath => path.join(path.dirname(newPath), path.basename(newPath, '.md'), 'index.html'))))
+		.pipe(rename(newPath => path.join(path.dirname(newPath), path.basename(newPath, '.md'), 'index.html')))
 		.pipe(gulp.dest('dist'))
 );
 ```
