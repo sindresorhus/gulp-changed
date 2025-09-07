@@ -133,3 +133,69 @@ test(`compareContents ${pointer} should only pass through changed files using ex
 	t.is(files.length, 1);
 	t.is(path.basename(files[0].path), 'b.typescript');
 });
+
+test.serial(`compareLastModifiedTime ${pointer} detects file replacement with older file via ctime`, async t => {
+	const testDir = 'tmp-replacement';
+	const srcDir = path.join(testDir, 'src');
+	const destDir = path.join(testDir, 'dest');
+
+	// Clean up and create directories
+	deleteSync(testDir);
+	await fs.mkdir(srcDir, {recursive: true});
+	await fs.mkdir(destDir, {recursive: true});
+
+	const srcPath = path.join(srcDir, 'app.js');
+	const destPath = path.join(destDir, 'app.js');
+
+	// Create initial file and process it
+	await fs.writeFile(srcPath, 'console.log("v1");');
+
+	const stream1 = changed(destDir);
+	stream1.on('data', file => {
+		fsSync.writeFileSync(destPath, file.contents);
+	});
+
+	stream1.write(new Vinyl({
+		cwd: testDir,
+		base: srcDir,
+		path: srcPath,
+		contents: Buffer.from('console.log("v1");'),
+		stat: await fs.stat(srcPath),
+	}));
+	stream1.end();
+	await new Promise(resolve => {
+		stream1.on('end', resolve);
+	});
+
+	// Replace source with older file
+	await fs.writeFile(srcPath, 'console.log("old");');
+	const oldTime = Date.now() - 10_000;
+	await fs.utimes(srcPath, oldTime / 1000, oldTime / 1000);
+
+	// Verify ctime is newer than dest mtime
+	const srcStat = await fs.stat(srcPath);
+	const destStat = await fs.stat(destPath);
+	t.true(srcStat.ctimeMs > destStat.mtimeMs, 'Source ctime should be newer than dest mtime');
+
+	// Process replaced file - should be detected
+	const stream2 = changed(destDir);
+	const filesProcessed = [];
+	stream2.on('data', file => filesProcessed.push(file));
+
+	stream2.write(new Vinyl({
+		cwd: testDir,
+		base: srcDir,
+		path: srcPath,
+		contents: await fs.readFile(srcPath),
+		stat: await fs.stat(srcPath),
+	}));
+	stream2.end();
+	await new Promise(resolve => {
+		stream2.on('end', resolve);
+	});
+
+	t.is(filesProcessed.length, 1, 'Replaced file with older mtime should be detected via ctime');
+
+	// Clean up
+	deleteSync(testDir);
+});
