@@ -85,19 +85,19 @@ Function that determines whether the source file is different from the destinati
 
 Named imports:
 
-- `compareLastModifiedTime`
-- `compareContents`
+- `compareLastModifiedTime` - Compare modification times (default)
+- `compareContents` - Compare file contents (only useful for files that are copied without transformation)
 
 ###### Example
 
 ```js
 import {compareContents} from 'gulp-changed';
 
-export const jade = () => (
-	gulp.src('src/**/*.jade')
-		.pipe(changed('app', {hasChanged: compareContents}))
-		.pipe(jade())
-		.pipe(gulp.dest('app'))
+// compareContents only works when files are copied without transformation
+export const images = () => (
+	gulp.src('src/images/**/*')
+		.pipe(changed('dist/images', {hasChanged: compareContents}))
+		.pipe(gulp.dest('dist/images'))
 );
 ```
 
