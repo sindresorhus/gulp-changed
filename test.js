@@ -3,6 +3,7 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import fsSync from 'node:fs';
 import {fileURLToPath} from 'node:url';
+import {setTimeout} from 'node:timers/promises';
 import touch from 'touch';
 import test from 'ava';
 import gulp from 'gulp';
@@ -166,6 +167,9 @@ test.serial(`compareLastModifiedTime ${pointer} detects file replacement with ol
 	await new Promise(resolve => {
 		stream1.on('end', resolve);
 	});
+
+	// Add a small delay to ensure dest file's mtime is properly set
+	await setTimeout(10);
 
 	// Replace source with older file
 	await fs.writeFile(srcPath, 'console.log("old");');
