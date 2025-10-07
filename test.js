@@ -203,3 +203,67 @@ test.serial(`compareLastModifiedTime ${pointer} detects file replacement with ol
 	// Clean up
 	deleteSync(testDir);
 });
+
+test.serial(`compareLastModifiedTime ${pointer} should not pass through files when mtime is old but ctime is current (issue #94)`, async t => {
+	const testDir = 'tmp-issue-94';
+	const srcDir = path.join(testDir, 'src');
+	const destDir = path.join(testDir, 'dest');
+
+	deleteSync(testDir);
+	await fs.mkdir(srcDir, {recursive: true});
+	await fs.mkdir(destDir, {recursive: true});
+
+	const srcPath = path.join(srcDir, 'app.js');
+	const destPath = path.join(destDir, 'app.js');
+
+	// Create file with old mtime (simulates git checkout/archive extraction)
+	await fs.writeFile(srcPath, 'console.log("test");');
+	const oldTime = Date.now() - 10_000;
+	await fs.utimes(srcPath, oldTime / 1000, oldTime / 1000);
+
+	// First pass - should pass through (destination doesn't exist)
+	const stream1 = changed(destDir);
+	let passedThrough = false;
+	stream1.on('data', file => {
+		passedThrough = true;
+		fsSync.writeFileSync(destPath, file.contents);
+		fsSync.utimesSync(destPath, file.stat.atime, file.stat.mtime);
+	});
+
+	stream1.write(new Vinyl({
+		cwd: testDir,
+		base: srcDir,
+		path: srcPath,
+		contents: await fs.readFile(srcPath),
+		stat: await fs.stat(srcPath),
+	}));
+	stream1.end();
+	await new Promise(resolve => {
+		stream1.on('end', resolve);
+	});
+
+	t.true(passedThrough, 'First run should pass through');
+
+	// Second pass - should NOT pass through (file unchanged, despite ctime > mtime)
+	const stream2 = changed(destDir);
+	passedThrough = false;
+	stream2.on('data', () => {
+		passedThrough = true;
+	});
+
+	stream2.write(new Vinyl({
+		cwd: testDir,
+		base: srcDir,
+		path: srcPath,
+		contents: await fs.readFile(srcPath),
+		stat: await fs.stat(srcPath),
+	}));
+	stream2.end();
+	await new Promise(resolve => {
+		stream2.on('end', resolve);
+	});
+
+	t.false(passedThrough, 'Second run should not pass through unchanged file');
+
+	deleteSync(testDir);
+});

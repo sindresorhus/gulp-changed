@@ -25,10 +25,15 @@ export async function compareLastModifiedTime(sourceFile, targetPath) {
 
 	Additionally, we use the maximum of mtime and ctime to handle file replacement scenarios. When a file is replaced with an older version (e.g., restored from backup), its mtime might be older than the destination, but its ctime (change time) will be newer since it was just replaced. This ensures we detect all types of file changes.
 	*/
-	// Check if file was replaced (ctime significantly newer than mtime indicates file replacement)
-	// We use a 1-second threshold to avoid false positives from minor timestamp variations
-	if (sourceFile.stat.ctimeMs > sourceFile.stat.mtimeMs + 1000 && sourceFile.stat.ctimeMs > targetStat.mtimeMs) {
-		// File was likely replaced with an older version
+	// Check if file was replaced with an older version
+	// This happens when: mtime is older than destination (rollback), but ctime is newer (just modified)
+	// Use precision-aware comparison: reverse of the "is newer" check
+	const sourceIsOlderThanDest = process.platform === 'win32'
+		? Math.floor(sourceFile.stat.mtimeMs / 1000) < Math.floor(targetStat.mtimeMs / 1000)
+		: Math.ceil(sourceFile.stat.mtimeMs) < Math.floor(targetStat.mtimeMs);
+
+	if (sourceIsOlderThanDest && sourceFile.stat.ctimeMs > sourceFile.stat.mtimeMs + 1000 && sourceFile.stat.ctimeMs > targetStat.mtimeMs) {
+		// File was replaced with an older version (e.g., restored from backup)
 		// Use direct comparison since ctime doesn't have the same precision issues as mtime
 		return sourceFile;
 	}
